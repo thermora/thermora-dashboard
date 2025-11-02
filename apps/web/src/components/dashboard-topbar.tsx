@@ -33,7 +33,7 @@ export default function DashboardTopbar({
 
   const tabs = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/devices", label: "Dispositivos" },
+    { href: "/dispositivos", label: "Dispositivos" },
   ];
 
   return (
@@ -56,9 +56,7 @@ export default function DashboardTopbar({
             {/* Center: Navigation Tabs */}
             <div className="flex items-center gap-1">
               {tabs.map((tab) => {
-                const isActive =
-                  pathname === tab.href ||
-                  (tab.href === "/dashboard" && pathname === "/dashboard");
+                const isActive = pathname === tab.href;
                 return (
                   <Link key={tab.href} href={tab.href as any}>
                     <Button
