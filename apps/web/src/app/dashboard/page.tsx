@@ -83,9 +83,14 @@ export default function DashboardPage() {
     toast.info(`Rota selecionada: ${routeId}`);
   };
 
-  const now = Date.now();
-  const minTime = now - 24 * 60 * 60 * 1000;
-  const maxTime = now;
+  const [timeRange, setTimeRange] = useState(() => {
+    const now = Date.now();
+    return {
+      current: now,
+      min: now - 24 * 60 * 60 * 1000,
+      max: now,
+    };
+  });
 
   return (
     <div className="flex h-screen flex-col bg-white overflow-hidden">
@@ -113,9 +118,9 @@ export default function DashboardPage() {
             onToggleNeighborhoods={setShowNeighborhoods}
             onExportPNG={handleExportPNG}
             onExportPDF={handleExportPDF}
-            currentTime={now}
-            minTime={minTime}
-            maxTime={maxTime}
+            currentTime={timeRange.current}
+            minTime={timeRange.min}
+            maxTime={timeRange.max}
           />
         </div>
 

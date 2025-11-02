@@ -7,8 +7,7 @@ import {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import maplibregl from "maplibre-gl";
-import type { Map, MapMouseEvent } from "maplibre-gl";
+import maplibregl, { type MapMouseEvent } from "maplibre-gl";
 import {
   BUS_ROUTES,
   MOCK_BUSES,
@@ -19,24 +18,25 @@ import {
 
 // Simple and reliable OpenStreetMap style
 const MAP_STYLE = {
-  version: 8,
+  version: 8 as const,
   sources: {
     osm: {
-      type: "raster",
+      type: "raster" as const,
       tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
       tileSize: 256,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
   },
   layers: [
     {
       id: "osm-tiles",
-      type: "raster",
+      type: "raster" as const,
       source: "osm",
       minzoom: 0,
-      maxzoom: 19
-    }
-  ]
+      maxzoom: 19,
+    },
+  ],
 };
 
 interface ThermalMapProps {
@@ -61,11 +61,11 @@ export interface ThermalMapRef {
 const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
   ({ readings = [], routes = [], onPointClick, onRouteClick }, ref) => {
     const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<Map | null>(null);
+    const map = useRef<maplibregl.Map | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
-    const busMarkersRef = useRef<Map<string, maplibregl.Marker>>( new Map());
-    const animationFrameRef = useRef<number>();
+    const busMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
+    const animationFrameRef = useRef<number | undefined>(undefined);
 
     useImperativeHandle(ref, () => ({
       flyTo: (lat: number, lng: number) => {
@@ -87,10 +87,9 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
       // Initialize map with simple OpenStreetMap raster tiles
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: MAP_STYLE,
+        style: MAP_STYLE as any,
         center: [-46.6333, -23.5505], // São Paulo
         zoom: 12,
-        attributionControl: true,
       });
 
       // Add navigation controls
@@ -443,7 +442,10 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
           const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
           if (!route) return;
 
-          const position = interpolatePosition(route.coordinates, bus.currentPosition);
+          const position = interpolatePosition(
+            route.coordinates,
+            bus.currentPosition
+          );
 
           // Create bus icon HTML
           const el = document.createElement("div");
@@ -472,23 +474,27 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
           el.style.cursor = "pointer";
           el.addEventListener("click", () => {
             const popup = new maplibregl.Popup({ offset: 25 })
-              .setHTML(`
+              .setHTML(
+                `
                 <div class="p-3">
                   <h3 class="font-bold text-sm mb-1">${bus.name}</h3>
                   <p class="text-xs text-gray-600 mb-2">${route.name}</p>
                   <div class="flex items-center gap-2">
-                    <span class="text-xs">🌡️ ${bus.temperature.toFixed(1)}°C</span>
+                    <span class="text-xs">🌡️ ${bus.temperature.toFixed(
+                      1
+                    )}°C</span>
                     <span class="text-xs">⚡ ${bus.speed} km/h</span>
                   </div>
                 </div>
-              `)
+              `
+              )
               .setLngLat([position.lng, position.lat])
               .addTo(map.current!);
           });
 
           const marker = new maplibregl.Marker({ element: el })
             .setLngLat([position.lng, position.lat])
-            .addTo(map.current);
+            .addTo(map.current!);
 
           busMarkersRef.current.set(bus.id, marker);
         }
@@ -516,7 +522,10 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
               newPosition = 0;
             }
 
-            const position = interpolatePosition(route.coordinates, newPosition);
+            const position = interpolatePosition(
+              route.coordinates,
+              newPosition
+            );
 
             // Update marker position
             const marker = busMarkersRef.current.get(bus.id);
@@ -540,10 +549,12 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
-        busMarkersRef.current.forEach((marker) => marker.remove());
+        busMarkersRef.current.forEach((marker: maplibregl.Marker) =>
+          marker.remove()
+        );
         busMarkersRef.current.clear();
       };
-    }, [mapLoaded, buses]);
+    }, [mapLoaded]);
 
     return (
       <div className="relative h-full w-full">
