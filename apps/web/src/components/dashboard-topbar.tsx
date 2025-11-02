@@ -1,27 +1,28 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import NextLink from 'next/link';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import {
   RiCalendarLine,
   RiFilterLine,
   RiAddLine,
   RiArrowDownSLine,
   RiNotificationLine,
-} from "react-icons/ri";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import Image from "next/image";
-import IconThermora from "@/assets/icon.png";
+} from 'react-icons/ri';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import IconThermora from '@/assets/icon.png';
 
 interface DashboardTopbarProps {
-  onTimeFilterChange?: (filter: "24h" | "7d" | "30d") => void;
+  onTimeFilterChange?: (filter: '24h' | '7d' | '30d') => void;
   onExportClick?: () => void;
 }
 
@@ -32,39 +33,41 @@ export default function DashboardTopbar({
   const pathname = usePathname();
 
   const tabs = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/dispositivos", label: "Dispositivos" },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/dispositivos', label: 'Dispositivos' },
   ];
 
   return (
-    <div className="bg-white">
+    <div className='bg-white'>
       {/* Top Row - Logo and Navigation */}
-      <div className="border-b border-slate-200">
-        <div className="w-full px-6 py-4">
-          <div className="flex items-center justify-between">
+      <div className='border-b border-slate-200'>
+        <div className='w-full px-6 py-4'>
+          <div className='flex items-center justify-between'>
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <Image
-                src={IconThermora}
-                alt="Thermora"
-                width={36}
-                height={36}
-                quality={100}
-              />
-            </div>
+            <NextLink href='/dashboard'>
+              <div className='flex items-center gap-3'>
+                <Image
+                  src={IconThermora}
+                  alt='Thermora'
+                  width={36}
+                  height={36}
+                  quality={100}
+                />
+              </div>
+            </NextLink>
 
             {/* Center: Navigation Tabs */}
-            <div className="flex items-center gap-1">
+            <div className='flex items-center gap-1'>
               {tabs.map((tab) => {
                 const isActive = pathname === tab.href;
                 return (
                   <Link key={tab.href} href={tab.href as any}>
                     <Button
-                      variant="ghost"
+                      variant='ghost'
                       className={cn(
-                        "text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-4 py-2 h-auto font-medium",
+                        'text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-4 py-2 h-auto font-medium',
                         {
-                          "bg-slate-100 text-slate-900": isActive,
+                          'bg-slate-100 text-slate-900': isActive,
                         }
                       )}
                     >
@@ -76,13 +79,13 @@ export default function DashboardTopbar({
             </div>
 
             {/* Notification Bell */}
-            <div className="flex items-center">
+            <div className='flex items-center'>
               <Button
-                variant="ghost"
-                size="sm"
-                className="relative h-9 w-9 p-0 hover:bg-slate-50"
+                variant='ghost'
+                size='sm'
+                className='relative h-9 w-9 p-0 hover:bg-slate-50'
               >
-                <RiNotificationLine className="h-5 w-5 text-slate-600" />
+                <RiNotificationLine className='h-5 w-5 text-slate-600' />
               </Button>
             </div>
           </div>
@@ -90,67 +93,67 @@ export default function DashboardTopbar({
       </div>
 
       {/* Bottom Row - Profile and Actions */}
-      <div className="border-b border-slate-200">
-        <div className="w-full px-6 py-4">
-          <div className="flex items-center justify-between">
+      <div className='border-b border-slate-200'>
+        <div className='w-full px-6 py-4'>
+          <div className='flex items-center justify-between'>
             {/* Profile Section */}
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden border border-slate-300 flex items-center justify-center">
-                <div className="h-8 w-8 rounded-full bg-slate-400"></div>
+            <div className='flex items-center gap-3'>
+              <div className='h-10 w-10 rounded-full bg-slate-200 overflow-hidden border border-slate-300 flex items-center justify-center'>
+                <div className='h-8 w-8 rounded-full bg-slate-400'></div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-slate-900 leading-tight">
-                  Vinicius Rocha
+              <div className='flex flex-col'>
+                <span className='text-sm font-medium text-slate-900 leading-tight'>
+                  Carol Rego
                 </span>
-                <span className="text-xs text-slate-600 leading-tight">
+                <span className='text-xs text-slate-600 leading-tight'>
                   Bem vindo de volta ao Thermora 👋
                 </span>
               </div>
             </div>
 
             {/* Right: Filters and Export */}
-            <div className="flex items-center gap-3">
+            <div className='flex items-center gap-3'>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-50 h-9 px-3"
+                    variant='outline'
+                    size='sm'
+                    className='gap-2 border-slate-300 text-slate-700 hover:bg-slate-50 h-9 px-3'
                   >
-                    <RiCalendarLine className="h-4 w-4" />
+                    <RiCalendarLine className='h-4 w-4' />
                     <span>Últimos 7 dias</span>
-                    <RiArrowDownSLine className="h-3 w-3" />
+                    <RiArrowDownSLine className='h-3 w-3' />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-40">
-                  <DropdownMenuItem onClick={() => onTimeFilterChange?.("24h")}>
+                <DropdownMenuContent className='w-40'>
+                  <DropdownMenuItem onClick={() => onTimeFilterChange?.('24h')}>
                     24 horas
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onTimeFilterChange?.("7d")}>
+                  <DropdownMenuItem onClick={() => onTimeFilterChange?.('7d')}>
                     7 dias
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onTimeFilterChange?.("30d")}>
+                  <DropdownMenuItem onClick={() => onTimeFilterChange?.('30d')}>
                     30 dias
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-50 h-9 px-3"
+                variant='outline'
+                size='sm'
+                className='gap-2 border-slate-300 text-slate-700 hover:bg-slate-50 h-9 px-3'
               >
-                <RiFilterLine className="size-5" />
+                <RiFilterLine className='size-5' />
                 <span>Filtrar por</span>
               </Button>
 
               <Button
-                variant="default"
-                size="sm"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-9 px-4 shadow-sm"
+                variant='default'
+                size='sm'
+                className='bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-9 px-4 shadow-sm'
                 onClick={onExportClick}
               >
-                <RiAddLine className="h-4 w-4" />
+                <RiAddLine className='h-4 w-4' />
                 <span>Exportar Relatório</span>
               </Button>
             </div>
