@@ -1,27 +1,27 @@
 "use client";
 import Link from "next/link";
+import type { Route } from "next";
 
 export default function Header() {
-	const links = [
-		{ to: "/", label: "Home" },
-		{ to: "/dashboard", label: "Dashboard" },
-		{ to: "/todos", label: "Todos" },
-	] as const;
+  const links = [
+    { to: "/" as Route, label: "Home" },
+    { to: "/dashboard" as Route, label: "Dashboard" },
+  ];
 
-	return (
-		<div>
-			<div className="flex flex-row items-center justify-between px-2 py-1">
-				<nav className="flex gap-4 text-lg">
-					{links.map(({ to, label }) => {
-						return (
-							<Link key={to} href={to}>
-								{label}
-							</Link>
-						);
-					})}
-				</nav>
-			</div>
-			<hr />
-		</div>
-	);
+  return (
+    <div>
+      <div className="flex flex-row items-center justify-between px-2 py-1">
+        <nav className="flex gap-4 text-lg">
+          {links.map(({ to, label }) => {
+            return (
+              <Link key={to} href={to}>
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+      <hr />
+    </div>
+  );
 }
