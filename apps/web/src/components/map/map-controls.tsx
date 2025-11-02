@@ -3,10 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  RiDownloadLine,
-  RiStackLine,
-} from "react-icons/ri";
+import { RiDownloadLine, RiStackLine } from "react-icons/ri";
 
 interface MapControlsProps {
   showRoutes?: boolean;
@@ -29,7 +26,6 @@ export default function MapControls({
   onExportPNG,
   onExportPDF,
 }: MapControlsProps) {
-
   return (
     <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
       {/* Layer Controls */}
@@ -63,35 +59,15 @@ export default function MapControls({
             <Checkbox
               id="neighborhoods"
               checked={showNeighborhoods}
-              onCheckedChange={(checked) => onToggleNeighborhoods?.(checked === true)}
+              onCheckedChange={(checked) =>
+                onToggleNeighborhoods?.(checked === true)
+              }
             />
             <Label htmlFor="neighborhoods" className="text-sm cursor-pointer">
               Bairros
             </Label>
           </div>
         </div>
-      </div>
-
-      {/* Export Buttons */}
-      <div className="flex flex-col gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onExportPNG}
-          className="w-full"
-        >
-          <RiDownloadLine className="h-4 w-4 mr-2" />
-          Exportar PNG
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onExportPDF}
-          className="w-full"
-        >
-          <RiDownloadLine className="h-4 w-4 mr-2" />
-          Exportar PDF
-        </Button>
       </div>
     </div>
   );
