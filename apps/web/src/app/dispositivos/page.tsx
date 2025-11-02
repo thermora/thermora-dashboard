@@ -178,10 +178,45 @@ export default function DispositivosPage() {
 
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             {devices === undefined ? (
-              <div className="text-center text-slate-600 py-16">
-                <div className="inline-flex items-center gap-3">
-                  <div className="h-5 w-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
-                  <span>Carregando dispositivos...</span>
+              <div className="p-6">
+                <div className="animate-pulse space-y-4">
+                  {/* Header skeleton */}
+                  <div className="flex items-center gap-4 pb-4 border-b border-slate-200">
+                    <div className="h-3 w-[280px] bg-slate-200 rounded" />
+                    <div className="h-3 w-[140px] bg-slate-200 rounded" />
+                    <div className="h-3 w-[240px] bg-slate-200 rounded" />
+                    <div className="h-3 w-[160px] bg-slate-200 rounded" />
+                    <div className="h-3 w-[140px] bg-slate-200 rounded" />
+                  </div>
+                  {/* Row skeletons */}
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-4 py-4">
+                      {/* Device info */}
+                      <div className="flex items-center gap-3 w-[280px]">
+                        <div className="h-10 w-10 bg-slate-200 rounded-lg" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-32 bg-slate-200 rounded" />
+                          <div className="h-2 w-24 bg-slate-200 rounded" />
+                        </div>
+                      </div>
+                      {/* Status badge */}
+                      <div className="w-[140px]">
+                        <div className="h-6 w-20 bg-slate-200 rounded-full" />
+                      </div>
+                      {/* Temperature gauge */}
+                      <div className="w-[240px]">
+                        <div className="h-2 w-full bg-slate-200 rounded-full" />
+                      </div>
+                      {/* Last reading */}
+                      <div className="w-[160px]">
+                        <div className="h-3 w-24 bg-slate-200 rounded" />
+                      </div>
+                      {/* Time on route */}
+                      <div className="w-[140px]">
+                        <div className="h-3 w-16 bg-slate-200 rounded" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : devices.length === 0 ? (
