@@ -83,14 +83,25 @@ export default function DashboardPage() {
     toast.info(`Rota selecionada: ${routeId}`);
   };
 
-  const [timeRange, setTimeRange] = useState(() => {
+  const [timeRange, setTimeRange] = useState<{
+    current: number;
+    min: number;
+    max: number;
+  }>({
+    current: 0,
+    min: 0,
+    max: 0,
+  });
+
+  // Initialize time range on client only to avoid hydration mismatch
+  useEffect(() => {
     const now = Date.now();
-    return {
+    setTimeRange({
       current: now,
       min: now - 24 * 60 * 60 * 1000,
       max: now,
-    };
-  });
+    });
+  }, []);
 
   return (
     <div className="flex h-screen flex-col bg-white overflow-hidden">

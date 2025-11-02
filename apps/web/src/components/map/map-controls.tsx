@@ -11,7 +11,7 @@ import {
   RiZoomOutLine,
   RiCompassLine,
 } from "react-icons/ri";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface MapControlsProps {
   showRoutes?: boolean;
@@ -52,7 +52,12 @@ export default function MapControls({
   minTime,
   maxTime,
 }: MapControlsProps) {
-  const [timeValue, setTimeValue] = useState(currentTime || Date.now());
+  const [timeValue, setTimeValue] = useState(0);
+
+  // Initialize time value on client only to avoid hydration mismatch
+  useEffect(() => {
+    setTimeValue(currentTime || Date.now());
+  }, [currentTime]);
 
   const handleTimeChange = (value: number) => {
     setTimeValue(value);
@@ -98,7 +103,7 @@ export default function MapControls({
       </div>
 
       {/* Time Slider */}
-      {minTime !== undefined && maxTime !== undefined && (
+      {minTime !== undefined && maxTime !== undefined && minTime > 0 && maxTime > 0 && (
         <div className="rounded-lg border bg-white p-4 shadow-md">
           <div className="flex items-center gap-2 mb-2">
             <RiTimeLine className="h-4 w-4 text-muted-foreground" />
