@@ -25,10 +25,14 @@
     "convex": "catalog:",
     "@thermora-dashboard/backend": "workspace:*",
     "better-auth": "catalog:",
-    "@convex-dev/better-auth": "catalog:"
+    "@convex-dev/better-auth": "catalog:",
+    "maplibre-gl": "^4.0.0",
+    "recharts": "^2.12.0",
+    "date-fns": "^3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.10",
+    "@types/maplibre-gl": "^1.14.0",
     "@types/node": "catalog:",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
