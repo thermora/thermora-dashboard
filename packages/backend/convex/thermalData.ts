@@ -1,4 +1,5 @@
 import { query } from "./_generated/server";
+import { v } from "convex/values";
 import { generateRoutes, generateBusStops, generateThermalReadings, generateHotspots, generateHistoricalData, generateNeighborhoods } from "./mockData";
 
 // Get current thermal readings (last 5 minutes)
@@ -376,5 +377,90 @@ export const getDevices = query({
 		}
 
 		return devices;
+	},
+});
+
+// Get device details including location
+export const getDeviceDetails = query({
+	args: { deviceId: v.string() },
+	handler: async (ctx, { deviceId }) => {
+		const now = Date.now();
+		const twoMinutesAgo = now - 2 * 60 * 1000;
+		const tenMinutesAgo = now - 10 * 60 * 1000;
+		const todayStart = new Date().setHours(0, 0, 0, 0);
+
+		// Get all routes
+		const routes = await ctx.db
+			.query("routes")
+			.withIndex("by_active", (q) => q.eq("active", true))
+			.collect();
+
+		const mockRoutes = generateRoutes().filter((r) => r.active);
+		const allRoutes = routes.length > 0 ? routes : mockRoutes;
+
+		// Get all recent readings for this device
+		const recentReadings = await ctx.db
+			.query("thermalReadings")
+			.withIndex("by_timestamp", (q) => q.gte("timestamp", todayStart))
+			.collect()
+			.then(readings => readings.filter(r => r.deviceId === deviceId));
+
+		// Use mock data if no readings exist
+		const mockReadings = recentReadings.length === 0 ? generateThermalReadings(now).filter(r => r.deviceId === deviceId) : [];
+		const allReadings = recentReadings.length > 0 ? recentReadings : mockReadings;
+
+		if (allReadings.length === 0) {
+			return null;
+		}
+
+		// Get the latest reading for location
+		const latestReading = allReadings.reduce((latest, reading) => 
+			reading.timestamp > latest.timestamp ? reading : latest
+		);
+
+		// Get route information
+		const route = allRoutes.find((r) => r.id === latestReading.routeId);
+		const routeName = route?.name || latestReading.routeId || "Sem rota";
+
+		// Determine status
+		let status: "online" | "late" | "offline";
+		if (latestReading.timestamp >= twoMinutesAgo) {
+			status = "online";
+		} else if (latestReading.timestamp >= tenMinutesAgo) {
+			status = "late";
+		} else {
+			status = "offline";
+		}
+
+		// Calculate time on route
+		const firstReadingToday = allReadings.reduce((first, reading) => 
+			reading.timestamp < first.timestamp ? reading : first
+		);
+		const timeOnRoute = Math.floor((now - firstReadingToday.timestamp) / 1000 / 60); // minutes
+
+		// Get all readings for today to show on map
+		const todayReadings = allReadings.map(r => ({
+			lat: r.lat,
+			lng: r.lng,
+			temperature: r.temperature,
+		}));
+
+		return {
+			deviceId: latestReading.deviceId,
+			routeId: latestReading.routeId,
+			routeName,
+			status,
+			currentTemp: Math.round(latestReading.temperature * 10) / 10,
+			lastReading: latestReading.timestamp,
+			timeOnRoute,
+			lat: latestReading.lat,
+			lng: latestReading.lng,
+			route: route ? {
+				id: route.id,
+				name: route.name,
+				coordinates: route.coordinates,
+			} : undefined,
+			readings: todayReadings,
+		};
 	},
 });

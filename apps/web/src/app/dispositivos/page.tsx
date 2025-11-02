@@ -2,18 +2,13 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@thermora-dashboard/backend/convex/_generated/api';
+import { useRouter } from 'next/navigation';
 import DashboardTopbar from '@/components/dashboard-topbar';
-import {
-  Root,
-  Header,
-  Body,
-  Head,
-  Row,
-  Cell,
-} from '@/components/ui/table';
+import { Root, Header, Body, Head, Row, Cell } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
 export default function DispositivosPage() {
+  const router = useRouter();
   const devices = useQuery(api.thermalData.getDevices);
 
   const formatLastReading = (timestamp: number) => {
@@ -110,7 +105,13 @@ export default function DispositivosPage() {
                 </Header>
                 <Body>
                   {devices.map((device) => (
-                    <Row key={device.deviceId}>
+                    <Row
+                      key={device.deviceId}
+                      onClick={() =>
+                        router.push(`/dispositivos/${device.deviceId}`)
+                      }
+                      className='cursor-pointer hover:bg-slate-50 transition-colors'
+                    >
                       <Cell className='font-mono text-sm text-slate-900'>
                         {device.deviceId}
                       </Cell>
