@@ -91,7 +91,7 @@ export default function DispositivosPage() {
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full text-xs font-semibold border shadow-sm",
+          "inline-flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full text-xs font-semibold border",
           containerStyle
         )}
       >
@@ -144,7 +144,7 @@ export default function DispositivosPage() {
             {/* Pointer */}
             <div
               className={cn(
-                "absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-white shadow-md transition-all duration-300",
+                "absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-white transition-all duration-300",
                 getColor()
               )}
               style={{ left: `${percentage}%` }}
@@ -226,7 +226,7 @@ export default function DispositivosPage() {
                       >
                         <Cell className="py-4">
                           <div className="flex items-center gap-3">
-                            <div className="shrink-0 h-10 w-10 rounded-lg bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                            <div className="shrink-0 h-10 w-10 rounded-lg bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                               <Bus className="h-5 w-5 text-white" />
                             </div>
                             <div className="flex flex-col min-w-0">
