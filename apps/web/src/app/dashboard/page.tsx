@@ -173,7 +173,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="flex max-w-xl z-10 absolute right-12 top-4 flex-col max-h-[calc(100vh-14rem)] overflow-auto gap-4 overflow-y-auto bg-white p-6 border rounded-xl border-slate-200">
+        <div className="flex max-w-xl z-10 absolute right-16 top-4 flex-col max-h-[calc(100vh-14rem)] overflow-auto gap-4 overflow-y-auto bg-white p-6 border rounded-xl border-slate-200">
           <StatusCards
             maxTemp={stats.maxTemp || 0}
             maxTempChange={stats.maxTempChange || 0}
