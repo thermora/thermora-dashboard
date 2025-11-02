@@ -6,71 +6,34 @@ import { Label } from "@/components/ui/label";
 import {
   RiDownloadLine,
   RiStackLine,
-  RiTimeLine,
   RiZoomInLine,
   RiZoomOutLine,
   RiCompassLine,
 } from "react-icons/ri";
-import { useState, useEffect } from "react";
 
 interface MapControlsProps {
   showRoutes?: boolean;
   showStops?: boolean;
-  showShade?: boolean;
-  showNeighborhoods?: boolean;
   onToggleRoutes?: (enabled: boolean) => void;
   onToggleStops?: (enabled: boolean) => void;
-  onToggleShade?: (enabled: boolean) => void;
-  onToggleNeighborhoods?: (enabled: boolean) => void;
-  onTimeChange?: (time: number) => void;
   onExportPNG?: () => void;
   onExportPDF?: () => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onResetView?: () => void;
-  currentTime?: number;
-  minTime?: number;
-  maxTime?: number;
 }
 
 export default function MapControls({
   showRoutes = true,
   showStops = true,
-  showShade = false,
-  showNeighborhoods = false,
   onToggleRoutes,
   onToggleStops,
-  onToggleShade,
-  onToggleNeighborhoods,
-  onTimeChange,
   onExportPNG,
   onExportPDF,
   onZoomIn,
   onZoomOut,
   onResetView,
-  currentTime,
-  minTime,
-  maxTime,
 }: MapControlsProps) {
-  const [timeValue, setTimeValue] = useState(0);
-
-  // Initialize time value on client only to avoid hydration mismatch
-  useEffect(() => {
-    setTimeValue(currentTime || Date.now());
-  }, [currentTime]);
-
-  const handleTimeChange = (value: number) => {
-    setTimeValue(value);
-    onTimeChange?.(value);
-  };
-
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   return (
     <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
@@ -102,27 +65,6 @@ export default function MapControls({
         </Button>
       </div>
 
-      {/* Time Slider */}
-      {minTime !== undefined && maxTime !== undefined && minTime > 0 && maxTime > 0 && (
-        <div className="rounded-lg border bg-white p-4 shadow-md">
-          <div className="flex items-center gap-2 mb-2">
-            <RiTimeLine className="h-4 w-4 text-muted-foreground" />
-            <Label className="text-sm font-medium">Horário</Label>
-          </div>
-          <input
-            type="range"
-            min={minTime}
-            max={maxTime}
-            value={timeValue}
-            onChange={(e) => handleTimeChange(Number(e.target.value))}
-            className="w-full"
-          />
-          <div className="text-center text-sm text-muted-foreground mt-1">
-            {formatTime(timeValue)}
-          </div>
-        </div>
-      )}
-
       {/* Layer Controls */}
       <div className="rounded-lg border bg-white p-4 shadow-md">
         <div className="flex items-center gap-2 mb-3">
@@ -148,28 +90,6 @@ export default function MapControls({
             />
             <Label htmlFor="stops" className="text-sm cursor-pointer">
               Pontos de Parada
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="shade"
-              checked={showShade}
-              onCheckedChange={(checked) => onToggleShade?.(checked === true)}
-            />
-            <Label htmlFor="shade" className="text-sm cursor-pointer">
-              Sombra
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="neighborhoods"
-              checked={showNeighborhoods}
-              onCheckedChange={(checked) =>
-                onToggleNeighborhoods?.(checked === true)
-              }
-            />
-            <Label htmlFor="neighborhoods" className="text-sm cursor-pointer">
-              Bairros
             </Label>
           </div>
         </div>

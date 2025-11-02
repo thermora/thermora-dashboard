@@ -56,6 +56,9 @@ interface ThermalMapProps {
 
 export interface ThermalMapRef {
   flyTo: (lat: number, lng: number) => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetView: () => void;
 }
 
 const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
@@ -73,6 +76,25 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
           map.current.flyTo({
             center: [lng, lat],
             zoom: 14,
+            duration: 1000,
+          });
+        }
+      },
+      zoomIn: () => {
+        if (map.current) {
+          map.current.zoomIn({ duration: 300 });
+        }
+      },
+      zoomOut: () => {
+        if (map.current) {
+          map.current.zoomOut({ duration: 300 });
+        }
+      },
+      resetView: () => {
+        if (map.current) {
+          map.current.flyTo({
+            center: [-46.6333, -23.5505],
+            zoom: 12,
             duration: 1000,
           });
         }
@@ -569,6 +591,26 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
             </div>
           </div>
         )}
+
+        {/* Temperature Legend */}
+        <div className="absolute bottom-4 left-4 z-10 rounded-lg border bg-white p-4 shadow-lg">
+          <h3 className="mb-3 text-sm font-semibold">Temperatura (°C)</h3>
+          <div className="flex flex-col gap-2">
+            <div
+              className="h-8 w-48 rounded-xl border border-slate-200"
+              style={{
+                background:
+                  "linear-gradient(to right, #4A90E2, #50C878, #F4D03F, #F39C12, #E74C3C)",
+              }}
+            />
+            <div className="flex justify-between text-xs font-medium text-slate-600">
+              <span>25°</span>
+              <span>30°</span>
+              <span>35°</span>
+              <span>40°</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

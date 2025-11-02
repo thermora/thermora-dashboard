@@ -16,8 +16,6 @@ export default function DashboardPage() {
   const [timeFilter, setTimeFilter] = useState<"24h" | "7d" | "30d">("7d");
   const [showRoutes, setShowRoutes] = useState(true);
   const [showStops, setShowStops] = useState(true);
-  const [showShade, setShowShade] = useState(false);
-  const [showNeighborhoods, setShowNeighborhoods] = useState(false);
   const [selectedHotspot, setSelectedHotspot] = useState<{
     lat: number;
     lng: number;
@@ -83,25 +81,17 @@ export default function DashboardPage() {
     toast.info(`Rota selecionada: ${routeId}`);
   };
 
-  const [timeRange, setTimeRange] = useState<{
-    current: number;
-    min: number;
-    max: number;
-  }>({
-    current: 0,
-    min: 0,
-    max: 0,
-  });
+  const handleZoomIn = () => {
+    mapRef.current?.zoomIn();
+  };
 
-  // Initialize time range on client only to avoid hydration mismatch
-  useEffect(() => {
-    const now = Date.now();
-    setTimeRange({
-      current: now,
-      min: now - 24 * 60 * 60 * 1000,
-      max: now,
-    });
-  }, []);
+  const handleZoomOut = () => {
+    mapRef.current?.zoomOut();
+  };
+
+  const handleResetView = () => {
+    mapRef.current?.resetView();
+  };
 
   return (
     <div className="flex h-screen flex-col bg-white overflow-hidden">
@@ -121,17 +111,13 @@ export default function DashboardPage() {
           <MapControls
             showRoutes={showRoutes}
             showStops={showStops}
-            showShade={showShade}
-            showNeighborhoods={showNeighborhoods}
             onToggleRoutes={setShowRoutes}
             onToggleStops={setShowStops}
-            onToggleShade={setShowShade}
-            onToggleNeighborhoods={setShowNeighborhoods}
             onExportPNG={handleExportPNG}
             onExportPDF={handleExportPDF}
-            currentTime={timeRange.current}
-            minTime={timeRange.min}
-            maxTime={timeRange.max}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onResetView={handleResetView}
           />
         </div>
 
