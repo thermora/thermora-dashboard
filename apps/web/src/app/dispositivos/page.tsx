@@ -176,7 +176,7 @@ export default function DispositivosPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             {devices === undefined ? (
               <div className="text-center text-slate-600 py-16">
                 <div className="inline-flex items-center gap-3">
