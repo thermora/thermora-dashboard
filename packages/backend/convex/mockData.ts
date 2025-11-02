@@ -163,7 +163,7 @@ export function generateBusStops() {
 	];
 }
 
-// Generate thermal readings with realistic patterns - 35+ devices spread across the city
+// Generate thermal readings with realistic patterns - 80+ devices spread across all São Paulo
 export function generateThermalReadings(now: number) {
 	const readings: Array<{
 		timestamp: number;
@@ -174,56 +174,99 @@ export function generateThermalReadings(now: number) {
 		deviceId: string;
 	}> = [];
 
-	// 35 fixed device locations spread across São Paulo with assigned routes
+	// 80+ device locations spread across ALL of São Paulo (much wider coverage)
 	const deviceLocations = [
-		// Centro region (hottest) - Route 1
+		// Centro region (hottest)
 		{ lat: -23.5505, lng: -46.6333, name: "Terminal Central", baseTempOffset: 6, routeId: "route-1" },
 		{ lat: -23.5510, lng: -46.6340, name: "Praça República", baseTempOffset: 5, routeId: "route-1" },
 		{ lat: -23.5500, lng: -46.6325, name: "Av. Paulista", baseTempOffset: 5.5, routeId: "route-6" },
 		{ lat: -23.5495, lng: -46.6338, name: "Rua Augusta", baseTempOffset: 5, routeId: "route-2" },
-
-		// Zona Norte - Routes 5, 7, 8
-		{ lat: -23.5455, lng: -46.6383, name: "Av. Principal", baseTempOffset: 4, routeId: "route-5" },
-		{ lat: -23.5445, lng: -46.6393, name: "Jardim São Vicente", baseTempOffset: 3.5, routeId: "route-7" },
-		{ lat: -23.5435, lng: -46.6403, name: "Vila Serventina", baseTempOffset: 3, routeId: "route-8" },
-		{ lat: -23.5425, lng: -46.6413, name: "Jardim Aliança", baseTempOffset: 3, routeId: "route-9" },
-		{ lat: -23.5415, lng: -46.6423, name: "Jardim Rochdal", baseTempOffset: 2.5, routeId: "route-10" },
-		{ lat: -23.5465, lng: -46.6373, name: "Jardim Santa Cecília", baseTempOffset: 4, routeId: "route-4" },
-		{ lat: -23.5475, lng: -46.6363, name: "Vila dos Remédios", baseTempOffset: 3.5, routeId: "route-3" },
-
-		// Zona Sul - Route 1, 6
-		{ lat: -23.5545, lng: -46.6293, name: "Jardim das Flores", baseTempOffset: 3, routeId: "route-1" },
-		{ lat: -23.5555, lng: -46.6283, name: "Jardim Piratininga", baseTempOffset: 2.5, routeId: "route-6" },
-		{ lat: -23.5535, lng: -46.6303, name: "Cidade das Flores", baseTempOffset: 3, routeId: "route-3" },
-		{ lat: -23.5565, lng: -46.6273, name: "Parque São Domingos", baseTempOffset: 2, routeId: "route-6" },
-
-		// Zona Leste - Routes 2, 3
-		{ lat: -23.5485, lng: -46.6253, name: "Vila Leopoldina", baseTempOffset: 3.5, routeId: "route-2" },
-		{ lat: -23.5495, lng: -46.6243, name: "Lapa", baseTempOffset: 4, routeId: "route-2" },
-		{ lat: -23.5515, lng: -46.6233, name: "Água Branca", baseTempOffset: 4.5, routeId: "route-3" },
-		{ lat: -23.5525, lng: -46.6223, name: "Barra Funda", baseTempOffset: 5, routeId: "route-3" },
-		{ lat: -23.5535, lng: -46.6213, name: "Santa Cecília", baseTempOffset: 4.5, routeId: "route-4" },
-
-		// Zona Oeste - Routes 4, 5
-		{ lat: -23.5485, lng: -46.6453, name: "Pinheiros", baseTempOffset: 4, routeId: "route-4" },
-		{ lat: -23.5495, lng: -46.6463, name: "Vila Madalena", baseTempOffset: 3.5, routeId: "route-5" },
-		{ lat: -23.5505, lng: -46.6473, name: "Alto de Pinheiros", baseTempOffset: 3, routeId: "route-5" },
-		{ lat: -23.5515, lng: -46.6483, name: "Butantã", baseTempOffset: 2.5, routeId: "route-6" },
-
-		// Mais zonas centrais e adjacentes - Various routes
 		{ lat: -23.5520, lng: -46.6350, name: "Consolação", baseTempOffset: 5, routeId: "route-1" },
-		{ lat: -23.5530, lng: -46.6360, name: "Higienópolis", baseTempOffset: 4.5, routeId: "route-7" },
 		{ lat: -23.5515, lng: -46.6323, name: "Bela Vista", baseTempOffset: 5, routeId: "route-8" },
 		{ lat: -23.5525, lng: -46.6313, name: "Liberdade", baseTempOffset: 4.5, routeId: "route-9" },
-		{ lat: -23.5475, lng: -46.6303, name: "Cambuci", baseTempOffset: 4, routeId: "route-10" },
-		{ lat: -23.5485, lng: -46.6293, name: "Mooca", baseTempOffset: 4.5, routeId: "route-2" },
 
-		// Extremos da cidade - Routes 7-10
-		{ lat: -23.5405, lng: -46.6433, name: "Casa Verde", baseTempOffset: 2, routeId: "route-7" },
-		{ lat: -23.5395, lng: -46.6443, name: "Limão", baseTempOffset: 1.5, routeId: "route-8" },
-		{ lat: -23.5575, lng: -46.6263, name: "Jabaquara", baseTempOffset: 2.5, routeId: "route-9" },
-		{ lat: -23.5585, lng: -46.6253, name: "Vila Mariana", baseTempOffset: 3, routeId: "route-10" },
-		{ lat: -23.5465, lng: -46.6493, name: "Morumbi", baseTempOffset: 2, routeId: "route-6" },
+		// Zona Norte (wide spread)
+		{ lat: -23.4800, lng: -46.6200, name: "Santana", baseTempOffset: 4, routeId: "route-5" },
+		{ lat: -23.4950, lng: -46.6150, name: "Tucuruvi", baseTempOffset: 3.5, routeId: "route-7" },
+		{ lat: -23.4700, lng: -46.6400, name: "Casa Verde Alta", baseTempOffset: 3, routeId: "route-8" },
+		{ lat: -23.4850, lng: -46.6600, name: "Freguesia do Ó", baseTempOffset: 3.5, routeId: "route-9" },
+		{ lat: -23.5000, lng: -46.6800, name: "Pirituba", baseTempOffset: 3, routeId: "route-10" },
+		{ lat: -23.4600, lng: -46.6300, name: "Mandaqui", baseTempOffset: 2.5, routeId: "route-4" },
+		{ lat: -23.4750, lng: -46.6500, name: "Limão Norte", baseTempOffset: 3, routeId: "route-3" },
+		{ lat: -23.4900, lng: -46.6900, name: "Jaraguá", baseTempOffset: 2, routeId: "route-5" },
+		{ lat: -23.5200, lng: -46.6100, name: "Vila Guilherme", baseTempOffset: 4, routeId: "route-2" },
+		{ lat: -23.5100, lng: -46.6500, name: "Barra Funda Norte", baseTempOffset: 4.5, routeId: "route-6" },
+
+		// Zona Sul (wide spread)
+		{ lat: -23.6200, lng: -46.6500, name: "Santo Amaro", baseTempOffset: 4, routeId: "route-1" },
+		{ lat: -23.6500, lng: -46.6800, name: "Campo Limpo", baseTempOffset: 3, routeId: "route-6" },
+		{ lat: -23.6800, lng: -46.7000, name: "Capão Redondo", baseTempOffset: 2.5, routeId: "route-3" },
+		{ lat: -23.6350, lng: -46.6200, name: "Jabaquara Sul", baseTempOffset: 3.5, routeId: "route-6" },
+		{ lat: -23.6100, lng: -46.6900, name: "Vila Andrade", baseTempOffset: 3, routeId: "route-2" },
+		{ lat: -23.6600, lng: -46.6400, name: "Grajaú", baseTempOffset: 2, routeId: "route-4" },
+		{ lat: -23.6700, lng: -46.7200, name: "Jardim Ângela", baseTempOffset: 2, routeId: "route-7" },
+		{ lat: -23.5900, lng: -46.6400, name: "Vila Mariana Sul", baseTempOffset: 4, routeId: "route-5" },
+		{ lat: -23.6000, lng: -46.6700, name: "Brooklin", baseTempOffset: 4.5, routeId: "route-8" },
+		{ lat: -23.6400, lng: -46.7100, name: "Jardim São Luís", baseTempOffset: 2.5, routeId: "route-9" },
+
+		// Zona Leste (wide spread)
+		{ lat: -23.5400, lng: -46.5500, name: "Tatuapé", baseTempOffset: 4.5, routeId: "route-2" },
+		{ lat: -23.5200, lng: -46.5200, name: "Penha", baseTempOffset: 4, routeId: "route-2" },
+		{ lat: -23.5600, lng: -46.4800, name: "Itaquera", baseTempOffset: 3.5, routeId: "route-3" },
+		{ lat: -23.5800, lng: -46.4400, name: "Guaianases", baseTempOffset: 3, routeId: "route-3" },
+		{ lat: -23.5300, lng: -46.4600, name: "São Mateus", baseTempOffset: 3.5, routeId: "route-4" },
+		{ lat: -23.5000, lng: -46.5000, name: "Vila Matilde", baseTempOffset: 4, routeId: "route-4" },
+		{ lat: -23.5500, lng: -46.4200, name: "Cidade Tiradentes", baseTempOffset: 2.5, routeId: "route-7" },
+		{ lat: -23.5100, lng: -46.5400, name: "Aricanduva", baseTempOffset: 4.5, routeId: "route-8" },
+		{ lat: -23.5700, lng: -46.5600, name: "Vila Prudente", baseTempOffset: 4, routeId: "route-9" },
+		{ lat: -23.5900, lng: -46.5300, name: "Sapopemba", baseTempOffset: 3, routeId: "route-10" },
+
+		// Zona Oeste (wide spread)
+		{ lat: -23.5600, lng: -46.7200, name: "Pinheiros Oeste", baseTempOffset: 4, routeId: "route-4" },
+		{ lat: -23.5500, lng: -46.7500, name: "Butantã Oeste", baseTempOffset: 3, routeId: "route-5" },
+		{ lat: -23.5800, lng: -46.7400, name: "Morumbi Sul", baseTempOffset: 3.5, routeId: "route-5" },
+		{ lat: -23.5700, lng: -46.7800, name: "Vila Sônia", baseTempOffset: 2.5, routeId: "route-6" },
+		{ lat: -23.5300, lng: -46.7300, name: "Lapa Oeste", baseTempOffset: 4, routeId: "route-1" },
+		{ lat: -23.5400, lng: -46.7600, name: "Jaguaré", baseTempOffset: 3.5, routeId: "route-2" },
+		{ lat: -23.5200, lng: -46.7700, name: "Vila Leopoldina Oeste", baseTempOffset: 4, routeId: "route-3" },
+		{ lat: -23.5900, lng: -46.7600, name: "Raposo Tavares", baseTempOffset: 2.5, routeId: "route-7" },
+		{ lat: -23.6000, lng: -46.7900, name: "Jardim Arpoador", baseTempOffset: 2, routeId: "route-8" },
+
+		// Centro expandido e regiões intermediárias
+		{ lat: -23.5455, lng: -46.6383, name: "Av. Principal", baseTempOffset: 4, routeId: "route-5" },
+		{ lat: -23.5445, lng: -46.6393, name: "Jardim São Vicente", baseTempOffset: 3.5, routeId: "route-7" },
+		{ lat: -23.5465, lng: -46.6373, name: "Jardim Santa Cecília", baseTempOffset: 4, routeId: "route-4" },
+		{ lat: -23.5475, lng: -46.6363, name: "Vila dos Remédios", baseTempOffset: 3.5, routeId: "route-3" },
+		{ lat: -23.5530, lng: -46.6360, name: "Higienópolis", baseTempOffset: 4.5, routeId: "route-7" },
+		{ lat: -23.5475, lng: -46.6303, name: "Cambuci", baseTempOffset: 4, routeId: "route-10" },
+		{ lat: -23.5485, lng: -46.6293, name: "Mooca Central", baseTempOffset: 4.5, routeId: "route-2" },
+		{ lat: -23.5495, lng: -46.6463, name: "Vila Madalena", baseTempOffset: 3.5, routeId: "route-5" },
+		{ lat: -23.5505, lng: -46.6473, name: "Alto de Pinheiros", baseTempOffset: 3, routeId: "route-5" },
+		{ lat: -23.5485, lng: -46.6253, name: "Vila Leopoldina Central", baseTempOffset: 3.5, routeId: "route-2" },
+		{ lat: -23.5515, lng: -46.6233, name: "Água Branca", baseTempOffset: 4.5, routeId: "route-3" },
+		{ lat: -23.5525, lng: -46.6223, name: "Barra Funda", baseTempOffset: 5, routeId: "route-3" },
+
+		// Extremos norte, sul, leste, oeste
+		{ lat: -23.4500, lng: -46.6000, name: "Tremembé", baseTempOffset: 2, routeId: "route-7" },
+		{ lat: -23.7000, lng: -46.7500, name: "Parelheiros", baseTempOffset: 1.5, routeId: "route-8" },
+		{ lat: -23.6000, lng: -46.4000, name: "São Miguel Paulista", baseTempOffset: 3, routeId: "route-9" },
+		{ lat: -23.6200, lng: -46.8000, name: "Jardim São Luís Oeste", baseTempOffset: 2, routeId: "route-10" },
+		{ lat: -23.4700, lng: -46.7000, name: "Brasilândia", baseTempOffset: 2.5, routeId: "route-6" },
+		{ lat: -23.6900, lng: -46.6600, name: "Cidade Dutra", baseTempOffset: 2, routeId: "route-4" },
+		{ lat: -23.5100, lng: -46.4200, name: "Ermelino Matarazzo", baseTempOffset: 3.5, routeId: "route-3" },
+		{ lat: -23.5600, lng: -46.8200, name: "Jardim Pirajussara", baseTempOffset: 2, routeId: "route-1" },
+
+		// Pontos adicionais para cobertura completa
+		{ lat: -23.4900, lng: -46.5800, name: "Jaçanã", baseTempOffset: 3, routeId: "route-2" },
+		{ lat: -23.6300, lng: -46.5800, name: "Saúde", baseTempOffset: 4, routeId: "route-5" },
+		{ lat: -23.5700, lng: -46.6500, name: "Vila Olímpia", baseTempOffset: 4.5, routeId: "route-6" },
+		{ lat: -23.5350, lng: -46.5900, name: "Belém", baseTempOffset: 4, routeId: "route-7" },
+		{ lat: -23.6100, lng: -46.7300, name: "Campo Belo", baseTempOffset: 3.5, routeId: "route-8" },
+		{ lat: -23.5250, lng: -46.6700, name: "Perdizes", baseTempOffset: 4, routeId: "route-9" },
+		{ lat: -23.5650, lng: -46.6100, name: "Ipiranga", baseTempOffset: 4, routeId: "route-10" },
+		{ lat: -23.4800, lng: -46.6700, name: "Cachoeirinha", baseTempOffset: 3, routeId: "route-1" },
+		{ lat: -23.6500, lng: -46.7500, name: "M'Boi Mirim", baseTempOffset: 2.5, routeId: "route-2" },
+		{ lat: -23.5850, lng: -46.5700, name: "São Caetano", baseTempOffset: 4, routeId: "route-3" },
 	];
 
 	// Generate readings for last 5 minutes (300 seconds)
@@ -256,9 +299,10 @@ export function generateThermalReadings(now: number) {
 	return readings;
 }
 
-// Generate hotspots based on high temperature concentrations
+// Generate hotspots based on high temperature concentrations - spread across São Paulo
 export function generateHotspots(today: string, now: number) {
 	return [
+		// Centro e região central (highest temperatures)
 		{
 			name: "Terminal Central",
 			lat: -23.5505,
@@ -303,126 +347,191 @@ export function generateHotspots(today: string, now: number) {
 			date: today,
 			startTime: now - 48 * 60 * 1000,
 		},
+
+		// Zona Leste
 		{
-			name: "Consolação",
-			lat: -23.5520,
-			lng: -46.6350,
-			maxTemp: 37.9,
+			name: "Tatuapé",
+			lat: -23.5400,
+			lng: -46.5500,
+			maxTemp: 37.8,
 			duration: 45,
-			population: 1950,
+			population: 2200,
 			riskLevel: "Danger" as const,
 			date: today,
 			startTime: now - 45 * 60 * 1000,
 		},
 		{
-			name: "Rua Augusta",
-			lat: -23.5495,
-			lng: -46.6338,
-			maxTemp: 37.6,
+			name: "Penha",
+			lat: -23.5200,
+			lng: -46.5200,
+			maxTemp: 37.2,
 			duration: 42,
-			population: 1800,
+			population: 1900,
 			riskLevel: "Danger" as const,
 			date: today,
 			startTime: now - 42 * 60 * 1000,
 		},
 		{
-			name: "Liberdade",
-			lat: -23.5525,
-			lng: -46.6313,
-			maxTemp: 37.2,
+			name: "Itaquera",
+			lat: -23.5600,
+			lng: -46.4800,
+			maxTemp: 36.5,
 			duration: 38,
-			population: 1650,
+			population: 1600,
 			riskLevel: "Danger" as const,
 			date: today,
 			startTime: now - 38 * 60 * 1000,
 		},
+
+		// Zona Sul
 		{
-			name: "Água Branca",
-			lat: -23.5515,
-			lng: -46.6233,
-			maxTemp: 36.8,
+			name: "Santo Amaro",
+			lat: -23.6200,
+			lng: -46.6500,
+			maxTemp: 37.6,
+			duration: 40,
+			population: 2000,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 40 * 60 * 1000,
+		},
+		{
+			name: "Brooklin",
+			lat: -23.6000,
+			lng: -46.6700,
+			maxTemp: 37.0,
 			duration: 35,
-			population: 1500,
+			population: 1800,
 			riskLevel: "Danger" as const,
 			date: today,
 			startTime: now - 35 * 60 * 1000,
 		},
 		{
-			name: "Lapa",
-			lat: -23.5495,
-			lng: -46.6243,
-			maxTemp: 36.5,
+			name: "Jabaquara",
+			lat: -23.6350,
+			lng: -46.6200,
+			maxTemp: 36.2,
 			duration: 32,
-			population: 1400,
-			riskLevel: "Danger" as const,
+			population: 1500,
+			riskLevel: "Caution" as const,
 			date: today,
 			startTime: now - 32 * 60 * 1000,
 		},
+
+		// Zona Norte
+		{
+			name: "Santana",
+			lat: -23.4800,
+			lng: -46.6200,
+			maxTemp: 37.4,
+			duration: 38,
+			population: 1900,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 38 * 60 * 1000,
+		},
+		{
+			name: "Tucuruvi",
+			lat: -23.4950,
+			lng: -46.6150,
+			maxTemp: 36.8,
+			duration: 34,
+			population: 1600,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 34 * 60 * 1000,
+		},
+		{
+			name: "Casa Verde",
+			lat: -23.4700,
+			lng: -46.6400,
+			maxTemp: 35.9,
+			duration: 28,
+			population: 1300,
+			riskLevel: "Caution" as const,
+			date: today,
+			startTime: now - 28 * 60 * 1000,
+		},
+
+		// Zona Oeste
 		{
 			name: "Pinheiros",
-			lat: -23.5485,
-			lng: -46.6453,
-			maxTemp: 36.2,
+			lat: -23.5600,
+			lng: -46.7200,
+			maxTemp: 36.8,
+			duration: 36,
+			population: 1700,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 36 * 60 * 1000,
+		},
+		{
+			name: "Lapa",
+			lat: -23.5300,
+			lng: -46.7300,
+			maxTemp: 36.4,
 			duration: 30,
-			population: 1300,
+			population: 1500,
 			riskLevel: "Caution" as const,
 			date: today,
 			startTime: now - 30 * 60 * 1000,
 		},
 		{
-			name: "Av. Principal - Zona Norte",
-			lat: -23.5455,
-			lng: -46.6383,
-			maxTemp: 35.9,
-			duration: 28,
+			name: "Vila Leopoldina",
+			lat: -23.5200,
+			lng: -46.7700,
+			maxTemp: 35.7,
+			duration: 26,
 			population: 1200,
 			riskLevel: "Caution" as const,
 			date: today,
-			startTime: now - 28 * 60 * 1000,
+			startTime: now - 26 * 60 * 1000,
+		},
+
+		// Pontos adicionais espalhados
+		{
+			name: "Vila Olímpia",
+			lat: -23.5700,
+			lng: -46.6500,
+			maxTemp: 37.1,
+			duration: 33,
+			population: 1750,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 33 * 60 * 1000,
 		},
 		{
 			name: "Mooca",
 			lat: -23.5485,
 			lng: -46.6293,
-			maxTemp: 35.6,
-			duration: 26,
+			maxTemp: 36.6,
+			duration: 29,
+			population: 1400,
+			riskLevel: "Caution" as const,
+			date: today,
+			startTime: now - 29 * 60 * 1000,
+		},
+		{
+			name: "Ipiranga",
+			lat: -23.5650,
+			lng: -46.6100,
+			maxTemp: 36.0,
+			duration: 25,
+			population: 1250,
+			riskLevel: "Caution" as const,
+			date: today,
+			startTime: now - 25 * 60 * 1000,
+		},
+		{
+			name: "Vila Prudente",
+			lat: -23.5700,
+			lng: -46.5600,
+			maxTemp: 35.5,
+			duration: 22,
 			population: 1100,
 			riskLevel: "Caution" as const,
 			date: today,
-			startTime: now - 26 * 60 * 1000,
-		},
-		{
-			name: "Cambuci",
-			lat: -23.5475,
-			lng: -46.6303,
-			maxTemp: 35.3,
-			duration: 24,
-			population: 1000,
-			riskLevel: "Caution" as const,
-			date: today,
-			startTime: now - 24 * 60 * 1000,
-		},
-		{
-			name: "Jardim Santa Cecília",
-			lat: -23.5465,
-			lng: -46.6373,
-			maxTemp: 35.0,
-			duration: 22,
-			population: 950,
-			riskLevel: "Caution" as const,
-			date: today,
 			startTime: now - 22 * 60 * 1000,
-		},
-		{
-			name: "Vila dos Remédios",
-			lat: -23.5475,
-			lng: -46.6363,
-			maxTemp: 34.7,
-			duration: 20,
-			population: 850,
-			riskLevel: "Caution" as const,
-			date: today,
-			startTime: now - 20 * 60 * 1000,
 		},
 	];
 }
