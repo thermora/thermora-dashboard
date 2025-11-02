@@ -1,5 +1,6 @@
 'use client';
 
+import NextLink from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -43,15 +44,17 @@ export default function DashboardTopbar({
         <div className='w-full px-6 py-4'>
           <div className='flex items-center justify-between'>
             {/* Logo */}
-            <div className='flex items-center gap-3'>
-              <Image
-                src={IconThermora}
-                alt='Thermora'
-                width={36}
-                height={36}
-                quality={100}
-              />
-            </div>
+            <NextLink href='/dashboard'>
+              <div className='flex items-center gap-3'>
+                <Image
+                  src={IconThermora}
+                  alt='Thermora'
+                  width={36}
+                  height={36}
+                  quality={100}
+                />
+              </div>
+            </NextLink>
 
             {/* Center: Navigation Tabs */}
             <div className='flex items-center gap-1'>
