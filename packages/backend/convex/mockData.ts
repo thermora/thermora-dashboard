@@ -181,7 +181,7 @@ export function generateThermalReadings(now: number) {
 		{ lat: -23.5510, lng: -46.6340, name: "Praça República", baseTempOffset: 5, routeId: "route-1" },
 		{ lat: -23.5500, lng: -46.6325, name: "Av. Paulista", baseTempOffset: 5.5, routeId: "route-6" },
 		{ lat: -23.5495, lng: -46.6338, name: "Rua Augusta", baseTempOffset: 5, routeId: "route-2" },
-		
+
 		// Zona Norte - Routes 5, 7, 8
 		{ lat: -23.5455, lng: -46.6383, name: "Av. Principal", baseTempOffset: 4, routeId: "route-5" },
 		{ lat: -23.5445, lng: -46.6393, name: "Jardim São Vicente", baseTempOffset: 3.5, routeId: "route-7" },
@@ -190,26 +190,26 @@ export function generateThermalReadings(now: number) {
 		{ lat: -23.5415, lng: -46.6423, name: "Jardim Rochdal", baseTempOffset: 2.5, routeId: "route-10" },
 		{ lat: -23.5465, lng: -46.6373, name: "Jardim Santa Cecília", baseTempOffset: 4, routeId: "route-4" },
 		{ lat: -23.5475, lng: -46.6363, name: "Vila dos Remédios", baseTempOffset: 3.5, routeId: "route-3" },
-		
+
 		// Zona Sul - Route 1, 6
 		{ lat: -23.5545, lng: -46.6293, name: "Jardim das Flores", baseTempOffset: 3, routeId: "route-1" },
 		{ lat: -23.5555, lng: -46.6283, name: "Jardim Piratininga", baseTempOffset: 2.5, routeId: "route-6" },
 		{ lat: -23.5535, lng: -46.6303, name: "Cidade das Flores", baseTempOffset: 3, routeId: "route-3" },
 		{ lat: -23.5565, lng: -46.6273, name: "Parque São Domingos", baseTempOffset: 2, routeId: "route-6" },
-		
+
 		// Zona Leste - Routes 2, 3
 		{ lat: -23.5485, lng: -46.6253, name: "Vila Leopoldina", baseTempOffset: 3.5, routeId: "route-2" },
 		{ lat: -23.5495, lng: -46.6243, name: "Lapa", baseTempOffset: 4, routeId: "route-2" },
 		{ lat: -23.5515, lng: -46.6233, name: "Água Branca", baseTempOffset: 4.5, routeId: "route-3" },
 		{ lat: -23.5525, lng: -46.6223, name: "Barra Funda", baseTempOffset: 5, routeId: "route-3" },
 		{ lat: -23.5535, lng: -46.6213, name: "Santa Cecília", baseTempOffset: 4.5, routeId: "route-4" },
-		
+
 		// Zona Oeste - Routes 4, 5
 		{ lat: -23.5485, lng: -46.6453, name: "Pinheiros", baseTempOffset: 4, routeId: "route-4" },
 		{ lat: -23.5495, lng: -46.6463, name: "Vila Madalena", baseTempOffset: 3.5, routeId: "route-5" },
 		{ lat: -23.5505, lng: -46.6473, name: "Alto de Pinheiros", baseTempOffset: 3, routeId: "route-5" },
 		{ lat: -23.5515, lng: -46.6483, name: "Butantã", baseTempOffset: 2.5, routeId: "route-6" },
-		
+
 		// Mais zonas centrais e adjacentes - Various routes
 		{ lat: -23.5520, lng: -46.6350, name: "Consolação", baseTempOffset: 5, routeId: "route-1" },
 		{ lat: -23.5530, lng: -46.6360, name: "Higienópolis", baseTempOffset: 4.5, routeId: "route-7" },
@@ -217,7 +217,7 @@ export function generateThermalReadings(now: number) {
 		{ lat: -23.5525, lng: -46.6313, name: "Liberdade", baseTempOffset: 4.5, routeId: "route-9" },
 		{ lat: -23.5475, lng: -46.6303, name: "Cambuci", baseTempOffset: 4, routeId: "route-10" },
 		{ lat: -23.5485, lng: -46.6293, name: "Mooca", baseTempOffset: 4.5, routeId: "route-2" },
-		
+
 		// Extremos da cidade - Routes 7-10
 		{ lat: -23.5405, lng: -46.6433, name: "Casa Verde", baseTempOffset: 2, routeId: "route-7" },
 		{ lat: -23.5395, lng: -46.6443, name: "Limão", baseTempOffset: 1.5, routeId: "route-8" },
