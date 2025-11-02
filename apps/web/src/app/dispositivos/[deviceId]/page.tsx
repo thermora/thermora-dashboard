@@ -5,7 +5,7 @@ import { api } from '@thermora-dashboard/backend/convex/_generated/api';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import DashboardTopbar from '@/components/dashboard-topbar';
-import ThermalMap from '@/components/map/thermal-map';
+import ThermalMap, { type ThermalMapRef } from '@/components/map/thermal-map';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,7 +16,7 @@ export default function DeviceDetailPage() {
   const router = useRouter();
   const deviceId = params.deviceId as string;
   const device = useQuery(api.thermalData.getDeviceDetails, { deviceId });
-  const mapRef = useRef<{ flyTo: (lat: number, lng: number) => void }>(null);
+  const mapRef = useRef<ThermalMapRef>(null);
 
   useEffect(() => {
     if (device && device.lat && device.lng && mapRef.current) {

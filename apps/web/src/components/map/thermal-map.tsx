@@ -161,9 +161,19 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
       if (!map.current || !mapLoaded || readings.length === 0) return;
 
       // Remove existing heatmap source and layer if they exist
-      if (map.current.getSource('heatmap')) {
+      if (map.current.getLayer('heatmap')) {
         map.current.removeLayer('heatmap');
+      }
+      if (map.current.getSource('heatmap')) {
         map.current.removeSource('heatmap');
+      }
+
+      // Remove existing points source and layer if they exist
+      if (map.current.getLayer('points')) {
+        map.current.removeLayer('points');
+      }
+      if (map.current.getSource('points')) {
+        map.current.removeSource('points');
       }
 
       // Add heatmap source
@@ -391,6 +401,20 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
         map.current?.off('mouseleave', 'points', handleMouseLeave);
         map.current?.off('click', handleClick);
         popup.remove();
+
+        // Clean up layers and sources
+        if (map.current?.getLayer('points')) {
+          map.current.removeLayer('points');
+        }
+        if (map.current?.getSource('points')) {
+          map.current.removeSource('points');
+        }
+        if (map.current?.getLayer('heatmap')) {
+          map.current.removeLayer('heatmap');
+        }
+        if (map.current?.getSource('heatmap')) {
+          map.current.removeSource('heatmap');
+        }
       };
     }, [mapLoaded, readings, onPointClick]);
 
