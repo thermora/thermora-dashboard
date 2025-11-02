@@ -119,7 +119,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="flex max-w-xl z-10 absolute right-4 top-4 flex-col max-h-[calc(100vh-14rem)] overflow-auto gap-4 overflow-y-auto bg-white p-6 border rounded-xl border-slate-200">
+        <div className="flex max-w-xl z-10 absolute right-12 top-4 flex-col max-h-[calc(100vh-14rem)] overflow-auto gap-4 overflow-y-auto bg-white p-6 border rounded-xl border-slate-200">
           {stats === undefined ? (
             <div className="text-center text-muted-foreground py-8">
               Carregando estatísticas...

@@ -9,167 +9,34 @@ import {
 } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map, MapMouseEvent } from "maplibre-gl";
-import { Protocol } from "pmtiles";
+import {
+  BUS_ROUTES,
+  MOCK_BUSES,
+  interpolatePosition,
+  type Bus,
+  type BusRoute,
+} from "./bus-mock-data";
 
-let protocolRegistered = false;
-
-// Protomaps style using vector tiles API (simpler and more reliable)
-const PROTOMAPS_STYLE = {
+// Simple and reliable OpenStreetMap style
+const MAP_STYLE = {
   version: 8,
   sources: {
-    protomaps: {
-      type: "vector",
-      tiles: [
-        "https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=demo"
-      ],
-      minzoom: 0,
-      maxzoom: 14,
-      attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>'
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }
   },
   layers: [
     {
-      id: "background",
-      type: "background",
-      paint: {
-        "background-color": "#f0f0f0"
-      }
-    },
-    {
-      id: "earth",
-      type: "fill",
-      source: "protomaps",
-      "source-layer": "earth",
-      paint: {
-        "fill-color": "#e2dfda"
-      }
-    },
-    {
-      id: "natural",
-      type: "fill",
-      source: "protomaps",
-      "source-layer": "natural",
-      filter: ["==", ["get", "pmap:kind"], "park"],
-      paint: {
-        "fill-color": "#cde5b3"
-      }
-    },
-    {
-      id: "landuse",
-      type: "fill",
-      source: "protomaps",
-      "source-layer": "landuse",
-      paint: {
-        "fill-color": "#e8e8e8",
-        "fill-opacity": 0.6
-      }
-    },
-    {
-      id: "water",
-      type: "fill",
-      source: "protomaps",
-      "source-layer": "water",
-      paint: {
-        "fill-color": "#80deea"
-      }
-    },
-    {
-      id: "buildings",
-      type: "fill",
-      source: "protomaps",
-      "source-layer": "buildings",
-      minzoom: 14,
-      paint: {
-        "fill-color": "#cccccc",
-        "fill-opacity": 0.5
-      }
-    },
-    {
-      id: "roads-minor",
-      type: "line",
-      source: "protomaps",
-      "source-layer": "roads",
-      minzoom: 12,
-      filter: ["==", ["get", "pmap:kind"], "minor_road"],
-      paint: {
-        "line-color": "#ffffff",
-        "line-width": [
-          "interpolate",
-          ["exponential", 1.6],
-          ["zoom"],
-          12, 0.5,
-          14, 1,
-          18, 4
-        ]
-      }
-    },
-    {
-      id: "roads-major",
-      type: "line",
-      source: "protomaps",
-      "source-layer": "roads",
-      filter: ["==", ["get", "pmap:kind"], "major_road"],
-      paint: {
-        "line-color": "#ffffff",
-        "line-width": [
-          "interpolate",
-          ["exponential", 1.6],
-          ["zoom"],
-          8, 1,
-          14, 2,
-          18, 8
-        ]
-      }
-    },
-    {
-      id: "roads-highway",
-      type: "line",
-      source: "protomaps",
-      "source-layer": "roads",
-      filter: ["==", ["get", "pmap:kind"], "highway"],
-      paint: {
-        "line-color": "#ffd700",
-        "line-width": [
-          "interpolate",
-          ["exponential", 1.6],
-          ["zoom"],
-          6, 1,
-          14, 3,
-          18, 10
-        ]
-      }
-    },
-    {
-      id: "boundaries",
-      type: "line",
-      source: "protomaps",
-      "source-layer": "boundaries",
-      paint: {
-        "line-color": "#adadad",
-        "line-width": 1,
-        "line-dasharray": [3, 2]
-      }
-    },
-    {
-      id: "place-labels",
-      type: "symbol",
-      source: "protomaps",
-      "source-layer": "places",
-      filter: ["==", ["get", "pmap:kind"], "locality"],
-      layout: {
-        "text-field": ["get", "name"],
-        "text-font": ["Noto Sans Regular"],
-        "text-size": 14,
-        "text-anchor": "center"
-      },
-      paint: {
-        "text-color": "#333333",
-        "text-halo-color": "#ffffff",
-        "text-halo-width": 2
-      }
+      id: "osm-tiles",
+      type: "raster",
+      source: "osm",
+      minzoom: 0,
+      maxzoom: 19
     }
-  ],
-  glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
+  ]
 };
 
 interface ThermalMapProps {
@@ -196,6 +63,9 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<Map | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
+    const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
+    const busMarkersRef = useRef<Map<string, maplibregl.Marker>>( new Map());
+    const animationFrameRef = useRef<number>();
 
     useImperativeHandle(ref, () => ({
       flyTo: (lat: number, lng: number) => {
@@ -212,52 +82,32 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     useEffect(() => {
       if (!mapContainer.current || map.current) return;
 
-      console.log("🗺️ Initializing map...");
+      console.log("🗺️ Initializing map with OpenStreetMap...");
 
-      try {
-        // Initialize map with Protomaps style (using vector tiles API, no PMTiles needed)
-        map.current = new maplibregl.Map({
-          container: mapContainer.current,
-          style: PROTOMAPS_STYLE as any,
-          center: [-46.6333, -23.5505], // São Paulo
-          zoom: 12,
-          attributionControl: true,
-        });
+      // Initialize map with simple OpenStreetMap raster tiles
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: MAP_STYLE,
+        center: [-46.6333, -23.5505], // São Paulo
+        zoom: 12,
+        attributionControl: true,
+      });
 
-        // Add navigation controls
-        map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+      // Add navigation controls
+      map.current.addControl(new maplibregl.NavigationControl(), "top-right");
 
-        map.current.on("load", () => {
-          console.log("✅ Protomaps loaded successfully!");
-          setMapLoaded(true);
-        });
+      map.current.on("load", () => {
+        console.log("✅ Map loaded successfully!");
+        setMapLoaded(true);
+      });
 
-        map.current.on("error", (e) => {
-          console.error("❌ Map error:", e.error);
-        });
+      map.current.on("error", (e) => {
+        console.error("❌ Map error:", e);
+      });
 
-        map.current.on("data", (e) => {
-          if (e.dataType === "source" && e.isSourceLoaded) {
-            console.log("📍 Source loaded:", e.sourceId);
-          }
-        });
-
-        // Set timeout to detect loading issues
-        const timeout = setTimeout(() => {
-          if (!mapLoaded) {
-            console.warn("⚠️ Map is taking too long to load. Check network tab for errors.");
-          }
-        }, 10000);
-
-        return () => {
-          clearTimeout(timeout);
-          map.current?.remove();
-        };
-
-      } catch (error) {
-        console.error("💥 Failed to initialize map:", error);
-        setMapLoaded(true); // Set to true to hide loading message
-      }
+      return () => {
+        map.current?.remove();
+      };
     }, []);
 
     // Add heatmap layer when map is loaded and readings are available
@@ -522,6 +372,178 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
         });
       };
     }, [mapLoaded, routes, onRouteClick]);
+
+    // Add bus routes to map
+    useEffect(() => {
+      if (!map.current || !mapLoaded) return;
+
+      console.log("🚌 Adding bus routes to map...");
+
+      // Add bus routes source
+      if (!map.current.getSource("bus-routes")) {
+        map.current.addSource("bus-routes", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: BUS_ROUTES.map((route) => ({
+              type: "Feature" as const,
+              geometry: {
+                type: "LineString" as const,
+                coordinates: route.coordinates.map((c) => [c.lng, c.lat]),
+              },
+              properties: {
+                routeId: route.id,
+                name: route.name,
+                color: route.color,
+              },
+            })),
+          },
+        });
+
+        // Add route lines layer
+        BUS_ROUTES.forEach((route) => {
+          map.current?.addLayer({
+            id: `bus-route-${route.id}`,
+            type: "line",
+            source: "bus-routes",
+            filter: ["==", ["get", "routeId"], route.id],
+            paint: {
+              "line-color": route.color,
+              "line-width": 4,
+              "line-opacity": 0.6,
+            },
+          });
+
+          // Add route outline
+          map.current?.addLayer({
+            id: `bus-route-outline-${route.id}`,
+            type: "line",
+            source: "bus-routes",
+            filter: ["==", ["get", "routeId"], route.id],
+            paint: {
+              "line-color": route.color,
+              "line-width": 6,
+              "line-opacity": 0.3,
+              "line-blur": 2,
+            },
+          });
+        });
+      }
+    }, [mapLoaded]);
+
+    // Add and animate buses
+    useEffect(() => {
+      if (!map.current || !mapLoaded) return;
+
+      console.log("🚌 Adding and animating buses...");
+
+      // Create bus markers
+      buses.forEach((bus) => {
+        if (!busMarkersRef.current.has(bus.id)) {
+          const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
+          if (!route) return;
+
+          const position = interpolatePosition(route.coordinates, bus.currentPosition);
+
+          // Create bus icon HTML
+          const el = document.createElement("div");
+          el.className = "bus-marker";
+          el.innerHTML = `
+            <div class="relative">
+              <!-- Pulse wave animation -->
+              <div class="absolute inset-0 -m-8">
+                <div class="bus-wave" style="border-color: ${route.color}20;"></div>
+                <div class="bus-wave animation-delay-1000" style="border-color: ${route.color}15;"></div>
+                <div class="bus-wave animation-delay-2000" style="border-color: ${route.color}10;"></div>
+              </div>
+              <!-- Bus icon -->
+              <div class="relative z-10 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                   style="background-color: ${route.color};">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <rect x="3" y="6" width="18" height="14" rx="2"/>
+                  <path d="M3 10h18"/>
+                  <path d="M7 15h.01"/>
+                  <path d="M17 15h.01"/>
+                </svg>
+              </div>
+            </div>
+          `;
+
+          el.style.cursor = "pointer";
+          el.addEventListener("click", () => {
+            const popup = new maplibregl.Popup({ offset: 25 })
+              .setHTML(`
+                <div class="p-3">
+                  <h3 class="font-bold text-sm mb-1">${bus.name}</h3>
+                  <p class="text-xs text-gray-600 mb-2">${route.name}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs">🌡️ ${bus.temperature.toFixed(1)}°C</span>
+                    <span class="text-xs">⚡ ${bus.speed} km/h</span>
+                  </div>
+                </div>
+              `)
+              .setLngLat([position.lng, position.lat])
+              .addTo(map.current!);
+          });
+
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([position.lng, position.lat])
+            .addTo(map.current);
+
+          busMarkersRef.current.set(bus.id, marker);
+        }
+      });
+
+      // Animation loop
+      let lastTime = Date.now();
+      const animate = () => {
+        const currentTime = Date.now();
+        const deltaTime = (currentTime - lastTime) / 1000; // seconds
+        lastTime = currentTime;
+
+        setBuses((prevBuses) =>
+          prevBuses.map((bus) => {
+            const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
+            if (!route) return bus;
+
+            // Calculate new position (speed in km/h converted to position/second)
+            // Assuming average route length of ~10km
+            const positionDelta = (bus.speed / 10000) * deltaTime;
+            let newPosition = bus.currentPosition + positionDelta;
+
+            // Loop back to start if reached end
+            if (newPosition >= 1) {
+              newPosition = 0;
+            }
+
+            const position = interpolatePosition(route.coordinates, newPosition);
+
+            // Update marker position
+            const marker = busMarkersRef.current.get(bus.id);
+            if (marker) {
+              marker.setLngLat([position.lng, position.lat]);
+            }
+
+            return {
+              ...bus,
+              currentPosition: newPosition,
+            };
+          })
+        );
+
+        animationFrameRef.current = requestAnimationFrame(animate);
+      };
+
+      animate();
+
+      return () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        busMarkersRef.current.forEach((marker) => marker.remove());
+        busMarkersRef.current.clear();
+      };
+    }, [mapLoaded, buses]);
 
     return (
       <div className="relative h-full w-full">
