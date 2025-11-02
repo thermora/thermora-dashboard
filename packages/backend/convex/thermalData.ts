@@ -248,3 +248,88 @@ export const getBusStops = query({
 		return generateBusStops();
 	},
 });
+
+// Get devices with status and route information
+export const getDevices = query({
+	handler: async (ctx) => {
+		const now = Date.now();
+		const twoMinutesAgo = now - 2 * 60 * 1000;
+		const tenMinutesAgo = now - 10 * 60 * 1000;
+		const todayStart = new Date().setHours(0, 0, 0, 0);
+
+		// Get all routes
+		const routes = await ctx.db
+			.query("routes")
+			.withIndex("by_active", (q) => q.eq("active", true))
+			.collect();
+
+		const mockRoutes = generateRoutes().filter((r) => r.active);
+		const allRoutes = routes.length > 0 ? routes : mockRoutes;
+
+		// Get all recent readings
+		const recentReadings = await ctx.db
+			.query("thermalReadings")
+			.withIndex("by_timestamp", (q) => q.gte("timestamp", todayStart))
+			.collect();
+
+		let readings = recentReadings;
+		if (readings.length === 0) {
+			readings = generateThermalReadings(now);
+		}
+
+		// Group readings by deviceId
+		const deviceMap = new Map<string, {
+			deviceId: string;
+			routeId?: string;
+			lastReading: number;
+			currentTemp: number;
+			firstReadingToday: number;
+		}>();
+
+		readings.forEach((reading) => {
+			const existing = deviceMap.get(reading.deviceId);
+			if (!existing || reading.timestamp > existing.lastReading) {
+				deviceMap.set(reading.deviceId, {
+					deviceId: reading.deviceId,
+					routeId: reading.routeId,
+					lastReading: reading.timestamp,
+					currentTemp: reading.temperature,
+					firstReadingToday: existing?.firstReadingToday || reading.timestamp,
+				});
+			} else if (reading.timestamp < existing.firstReadingToday) {
+				existing.firstReadingToday = reading.timestamp;
+			}
+		});
+
+		// Convert to array and enrich with route names
+		const devices = Array.from(deviceMap.values()).map((device) => {
+			const route = allRoutes.find((r) => r.id === device.routeId);
+			const routeName = route?.name || device.routeId || "Sem rota";
+
+			// Determine status
+			let status: "online" | "late" | "offline";
+			if (device.lastReading >= twoMinutesAgo) {
+				status = "online";
+			} else if (device.lastReading >= tenMinutesAgo) {
+				status = "late";
+			} else {
+				status = "offline";
+			}
+
+			// Calculate time on route (time since first reading today)
+			const timeOnRoute = Math.floor((now - device.firstReadingToday) / 1000 / 60); // minutes
+
+			return {
+				deviceId: device.deviceId,
+				routeName,
+				status,
+				currentTemp: Math.round(device.currentTemp * 10) / 10,
+				lastReading: device.lastReading,
+				timeOnRoute,
+			};
+		});
+
+		// Sort by deviceId
+		return devices.sort((a, b) => a.deviceId.localeCompare(b.deviceId));
+	},
+});
