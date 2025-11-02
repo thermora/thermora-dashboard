@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge-2";
+import type { ChartConfig } from "@/components/ui/line-charts-1";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/line-charts-1";
