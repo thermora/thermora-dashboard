@@ -127,7 +127,11 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
       });
 
       return () => {
-        map.current?.remove();
+        if (map.current) {
+          map.current.remove();
+          map.current = null;
+        }
+        setMapLoaded(false);
       };
     }, []);
 
