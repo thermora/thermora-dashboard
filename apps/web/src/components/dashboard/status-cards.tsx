@@ -1,13 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
-  RiTempHotLine,
-  RiAlertLine,
-  RiBusLine,
-  RiArrowUpLine,
-  RiArrowDownLine,
-  RiSubtractLine,
+  RiFireFill,
+  RiTempHotFill,
+  RiAlertFill,
+  RiBusFill,
+  RiArrowRightUpLine,
+  RiArrowRightLine,
 } from "react-icons/ri";
 
 interface StatusCardProps {
@@ -16,7 +16,9 @@ interface StatusCardProps {
   change?: number;
   changeLabel?: string;
   icon: React.ReactNode;
-  variant?: "default" | "warning" | "danger" | "success";
+  iconBgColor: string;
+  iconColor: string;
+  borderColor: string;
 }
 
 function StatusCard({
@@ -25,45 +27,47 @@ function StatusCard({
   change,
   changeLabel,
   icon,
-  variant = "default",
+  iconBgColor,
+  iconColor,
+  borderColor,
 }: StatusCardProps) {
+  const formatChange = () => {
+    if (change === undefined || change === 0) return "100%";
+    const sign = change > 0 ? "+" : "";
+    return `${sign}${change.toFixed(1)}°C`;
+  };
+
   const getChangeIcon = () => {
     if (change === undefined || change === 0)
-      return <RiSubtractLine className="h-4 w-4" />;
-    if (change > 0) return <RiArrowUpLine className="h-4 w-4 text-red-500" />;
-    return <RiArrowDownLine className="h-4 w-4 text-green-500" />;
-  };
-
-  const getChangeColor = () => {
-    if (change === undefined || change === 0) return "text-muted-foreground";
-    if (change > 0) return "text-red-500";
-    return "text-green-500";
-  };
-
-  const formatChange = () => {
-    if (change === undefined || change === 0) return "→";
-    if (change > 0) return `↑+${Math.abs(change).toFixed(1)}`;
-    return `↓${change.toFixed(1)}`;
+      return <RiArrowRightLine className="h-3 w-3" />;
+    return <RiArrowRightUpLine className="h-3 w-3" />;
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className="text-muted-foreground">{icon}</div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {change !== undefined && (
-          <p
-            className={`text-xs flex items-center gap-1 mt-1 ${getChangeColor()}`}
-          >
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-xl border bg-white p-4",
+        borderColor
+      )}
+    >
+      {/* Left colored border accent */}
+      <div className={cn("absolute left-0 top-0 h-full w-1", iconBgColor)} />
+
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-sm text-slate-600 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-slate-900 mb-1">{value}</p>
+          <div className="flex items-center gap-1.5 text-xs text-orange-600">
             {getChangeIcon()}
-            {formatChange()} {changeLabel || "vs ontem"}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+            <span className="font-medium">{formatChange()}</span>
+            <span className="text-slate-500">{changeLabel || "vs yesterday"}</span>
+          </div>
+        </div>
+        <div className={cn("rounded-2xl p-3", iconBgColor)}>
+          <div className={iconColor}>{icon}</div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -91,36 +95,44 @@ export default function StatusCards({
   return (
     <div className="grid grid-cols-2 gap-4">
       <StatusCard
-        title="Temperatura Máxima"
+        title="Max Temperature"
         value={`${maxTemp.toFixed(1)} °C`}
         change={maxTempChange}
-        changeLabel="vs ontem"
-        icon={<RiTempHotLine className="h-4 w-4 text-red-500" />}
-        variant="danger"
+        changeLabel="vs yesterday"
+        icon={<RiFireFill className="h-6 w-6" />}
+        iconBgColor="bg-red-50"
+        iconColor="text-red-500"
+        borderColor="border-slate-200/50"
       />
       <StatusCard
-        title="Média da Cidade"
+        title="City Average"
         value={`${avgTemp.toFixed(1)} °C`}
         change={avgTempChange}
-        changeLabel="vs ontem"
-        icon={<RiTempHotLine className="h-4 w-4 text-yellow-500" />}
-        variant="warning"
+        changeLabel="vs yesterday"
+        icon={<RiTempHotFill className="h-6 w-6" />}
+        iconBgColor="bg-amber-50"
+        iconColor="text-amber-500"
+        borderColor="border-slate-200/50"
       />
       <StatusCard
-        title="Hotspots Ativos"
+        title="Active Hotspots"
         value={activeHotspots}
         change={activeHotspotsChange}
-        changeLabel="vs ontem"
-        icon={<RiAlertLine className="h-4 w-4 text-yellow-500" />}
-        variant="warning"
+        changeLabel="vs yesterday"
+        icon={<RiAlertFill className="h-6 w-6" />}
+        iconBgColor="bg-amber-50"
+        iconColor="text-amber-500"
+        borderColor="border-slate-200/50"
       />
       <StatusCard
-        title="Rotas Monitoradas"
+        title="Monitored Routes"
         value={monitoredRoutes}
         change={monitoredRoutesChange}
-        changeLabel="vs ontem"
-        icon={<RiBusLine className="h-4 w-4 text-green-500" />}
-        variant="success"
+        changeLabel="vs yesterday"
+        icon={<RiBusFill className="h-6 w-6" />}
+        iconBgColor="bg-emerald-50"
+        iconColor="text-emerald-500"
+        borderColor="border-slate-200/50"
       />
     </div>
   );

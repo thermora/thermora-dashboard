@@ -8,15 +8,7 @@ import {
   forwardRef,
 } from 'react';
 import { renderToString } from 'react-dom/server';
-import { Bus as BusIcon } from 'lucide-react';
 import maplibregl, { type MapMouseEvent } from 'maplibre-gl';
-import {
-  BUS_ROUTES,
-  MOCK_BUSES,
-  interpolatePosition,
-  type Bus,
-  type BusRoute,
-} from './bus-mock-data';
 
 // Simple and reliable OpenStreetMap style
 const MAP_STYLE = {
@@ -86,9 +78,6 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
-    const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
-    const busMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
-    const animationFrameRef = useRef<number | undefined>(undefined);
     const addedNeighborhoodsRef = useRef<Set<string>>(new Set());
 
     useImperativeHandle(ref, () => ({
@@ -196,24 +185,28 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
             ['linear'],
             ['get', 'temperature'],
             25,
-            0,
+            0.2,
             30,
-            0.5,
+            0.4,
             35,
-            1,
+            0.7,
+            38,
+            0.9,
             40,
-            1.5,
+            1,
           ],
           'heatmap-intensity': [
             'interpolate',
             ['linear'],
             ['zoom'],
             0,
-            0.5,
-            9,
             1,
-            12,
+            9,
+            1.5,
+            11,
             2,
+            13,
+            2.5,
             15,
             3,
           ],
@@ -222,30 +215,56 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
             ['linear'],
             ['heatmap-density'],
             0,
-            'rgba(0, 0, 255, 0)', // Blue (cold)
+            'rgba(0, 0, 255, 0)',
+            0.1,
+            'rgba(65, 105, 225, 0.4)',
             0.2,
-            'rgba(0, 255, 0, 0.5)', // Green
+            'rgba(0, 255, 255, 0.5)',
+            0.3,
+            'rgba(0, 255, 0, 0.6)',
             0.4,
-            'rgba(255, 255, 0, 0.7)', // Yellow
+            'rgba(173, 255, 47, 0.65)',
+            0.5,
+            'rgba(255, 255, 0, 0.7)',
             0.6,
-            'rgba(255, 165, 0, 0.8)', // Orange
+            'rgba(255, 215, 0, 0.75)',
+            0.7,
+            'rgba(255, 165, 0, 0.8)',
             0.8,
-            'rgba(255, 0, 0, 0.9)', // Red (hot)
+            'rgba(255, 69, 0, 0.85)',
+            0.9,
+            'rgba(255, 0, 0, 0.9)',
+            1,
+            'rgba(139, 0, 0, 0.95)',
           ],
           'heatmap-radius': [
             'interpolate',
             ['linear'],
             ['zoom'],
             0,
-            50,
-            9,
-            75,
-            12,
-            100,
             15,
-            200,
+            8,
+            25,
+            10,
+            40,
+            12,
+            60,
+            14,
+            90,
+            15,
+            120,
           ],
-          'heatmap-opacity': 0.7,
+          'heatmap-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7,
+            0.85,
+            10,
+            0.75,
+            15,
+            0.65,
+          ],
         },
       });
 
@@ -352,72 +371,11 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     }, [mapLoaded, readings, onPointClick]);
 
     // Add routes layer
-    useEffect(() => {
-      if (!map.current || !mapLoaded || routes.length === 0) return;
-
-      // Remove existing routes if they exist
-      if (map.current.getSource('routes')) {
-        routes.forEach((route) => {
-          if (map.current?.getLayer(`route-${route.id}`)) {
-            map.current.removeLayer(`route-${route.id}`);
-          }
-        });
-        map.current.removeSource('routes');
-      }
-
-      // Add routes source
-      map.current.addSource('routes', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: routes.map((route) => ({
-            type: 'Feature',
-            geometry: {
-              type: 'LineString',
-              coordinates: route.coordinates.map((c) => [c.lng, c.lat]),
-            },
-            properties: {
-              routeId: route.id,
-              name: route.name,
-            },
-          })),
-        },
-      });
-
-      // Add routes layer
-      const routeHandlers: Array<{
-        routeId: string;
-        handler: (e: MapMouseEvent) => void;
-      }> = [];
-
-      routes.forEach((route) => {
-        const routeClickHandler = (e: MapMouseEvent) => {
-          onRouteClick?.(route.id);
-        };
-
-        map.current?.addLayer({
-          id: `route-${route.id}`,
-          type: 'line',
-          source: 'routes',
-          filter: ['==', ['get', 'routeId'], route.id],
-          paint: {
-            'line-color': '#3b82f6',
-            'line-width': 3,
-            'line-opacity': 0.7,
-          },
-        });
-
-        // Add click handler for routes
-        map.current?.on('click', `route-${route.id}`, routeClickHandler);
-        routeHandlers.push({ routeId: route.id, handler: routeClickHandler });
-      });
-
-      return () => {
-        routeHandlers.forEach(({ routeId, handler }) => {
-          map.current?.off('click', `route-${routeId}`, handler);
-        });
-      };
-    }, [mapLoaded, routes, onRouteClick]);
+    // Routes rendering disabled - showing only thermal hotspots
+    // useEffect(() => {
+    //   if (!map.current || !mapLoaded || routes.length === 0) return;
+    //   ... route rendering code removed
+    // }, [mapLoaded, routes, onRouteClick]);
 
     // Add neighborhoods layer
     useEffect(() => {
@@ -590,188 +548,7 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
       };
     }, [mapLoaded, neighborhoods, showNeighborhoods]);
 
-    // Add bus routes to map
-    useEffect(() => {
-      if (!map.current || !mapLoaded) return;
-
-      console.log('🚌 Adding bus routes to map...');
-
-      // Add bus routes source
-      if (!map.current.getSource('bus-routes')) {
-        map.current.addSource('bus-routes', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: BUS_ROUTES.map((route) => ({
-              type: 'Feature' as const,
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: route.coordinates.map((c) => [c.lng, c.lat]),
-              },
-              properties: {
-                routeId: route.id,
-                name: route.name,
-                color: route.color,
-              },
-            })),
-          },
-        });
-
-        // Add route lines layer
-        BUS_ROUTES.forEach((route) => {
-          map.current?.addLayer({
-            id: `bus-route-${route.id}`,
-            type: 'line',
-            source: 'bus-routes',
-            filter: ['==', ['get', 'routeId'], route.id],
-            paint: {
-              'line-color': route.color,
-              'line-width': 4,
-              'line-opacity': 0.6,
-            },
-          });
-
-          // Add route outline
-          map.current?.addLayer({
-            id: `bus-route-outline-${route.id}`,
-            type: 'line',
-            source: 'bus-routes',
-            filter: ['==', ['get', 'routeId'], route.id],
-            paint: {
-              'line-color': route.color,
-              'line-width': 6,
-              'line-opacity': 0.3,
-              'line-blur': 2,
-            },
-          });
-        });
-      }
-    }, [mapLoaded]);
-
-    // Add and animate buses
-    useEffect(() => {
-      if (!map.current || !mapLoaded) return;
-
-      console.log('🚌 Adding and animating buses...');
-
-      // Create bus markers
-      buses.forEach((bus) => {
-        if (!busMarkersRef.current.has(bus.id)) {
-          const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
-          if (!route) return;
-
-          const position = interpolatePosition(
-            route.coordinates,
-            bus.currentPosition
-          );
-
-          // Create bus icon HTML using Lucide Bus icon
-          const busIconSvg = renderToString(
-            <BusIcon size={20} color='white' strokeWidth={2} />
-          );
-
-          const el = document.createElement('div');
-          el.className = 'bus-marker';
-          el.innerHTML = `
-            <div class="relative">
-              <!-- Pulse wave animation -->
-              <div class="absolute inset-0 -m-8">
-                <div class="bus-wave" style="border-color: ${route.color}20;"></div>
-                <div class="bus-wave animation-delay-1000" style="border-color: ${route.color}15;"></div>
-                <div class="bus-wave animation-delay-2000" style="border-color: ${route.color}10;"></div>
-              </div>
-              <!-- Bus icon -->
-              <div class="relative z-10 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
-                   style="background-color: ${route.color};">
-                ${busIconSvg}
-              </div>
-            </div>
-          `;
-
-          el.style.cursor = 'pointer';
-          el.addEventListener('click', () => {
-            const popup = new maplibregl.Popup({ offset: 25 })
-              .setHTML(
-                `
-                <div class="p-3">
-                  <h3 class="font-bold text-sm mb-1">${bus.name}</h3>
-                  <p class="text-xs text-gray-600 mb-2">${route.name}</p>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs">🌡️ ${bus.temperature.toFixed(
-                      1
-                    )}°C</span>
-                    <span class="text-xs">⚡ ${bus.speed} km/h</span>
-                  </div>
-                </div>
-              `
-              )
-              .setLngLat([position.lng, position.lat])
-              .addTo(map.current!);
-          });
-
-          const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([position.lng, position.lat])
-            .addTo(map.current!);
-
-          busMarkersRef.current.set(bus.id, marker);
-        }
-      });
-
-      // Animation loop
-      let lastTime = Date.now();
-      const animate = () => {
-        const currentTime = Date.now();
-        const deltaTime = (currentTime - lastTime) / 1000; // seconds
-        lastTime = currentTime;
-
-        setBuses((prevBuses) =>
-          prevBuses.map((bus) => {
-            const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
-            if (!route) return bus;
-
-            // Calculate new position (speed in km/h converted to position/second)
-            // Assuming average route length of ~10km
-            const positionDelta = (bus.speed / 10000) * deltaTime;
-            let newPosition = bus.currentPosition + positionDelta;
-
-            // Loop back to start if reached end
-            if (newPosition >= 1) {
-              newPosition = 0;
-            }
-
-            const position = interpolatePosition(
-              route.coordinates,
-              newPosition
-            );
-
-            // Update marker position
-            const marker = busMarkersRef.current.get(bus.id);
-            if (marker) {
-              marker.setLngLat([position.lng, position.lat]);
-            }
-
-            return {
-              ...bus,
-              currentPosition: newPosition,
-            };
-          })
-        );
-
-        animationFrameRef.current = requestAnimationFrame(animate);
-      };
-
-      animate();
-
-      return () => {
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-        busMarkersRef.current.forEach((marker: maplibregl.Marker) =>
-          marker.remove()
-        );
-        busMarkersRef.current.clear();
-      };
-    }, [mapLoaded]);
+    // Bus routes and animations removed - showing only thermal heatmap zones
 
     return (
       <div className='relative h-full w-full'>

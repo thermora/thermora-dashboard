@@ -163,7 +163,7 @@ export function generateBusStops() {
 	];
 }
 
-// Generate thermal readings with realistic patterns
+// Generate thermal readings with realistic patterns - 35+ devices spread across the city
 export function generateThermalReadings(now: number) {
 	const readings: Array<{
 		timestamp: number;
@@ -174,51 +174,80 @@ export function generateThermalReadings(now: number) {
 		deviceId: string;
 	}> = [];
 
-	const routes = generateRoutes();
-	const routesWithStops = [
-		{ route: routes[0], stops: [{ lat: -23.5505, lng: -46.6333 }, { lat: -23.5515, lng: -46.6323 }, { lat: -23.5525, lng: -46.6313 }, { lat: -23.5535, lng: -46.6303 }, { lat: -23.5545, lng: -46.6293 }] },
-		{ route: routes[1], stops: [{ lat: -23.5485, lng: -46.6353 }, { lat: -23.5495, lng: -46.6343 }, { lat: -23.5505, lng: -46.6333 }] },
-		{ route: routes[2], stops: [{ lat: -23.5475, lng: -46.6363 }, { lat: -23.5485, lng: -46.6353 }, { lat: -23.5495, lng: -46.6343 }, { lat: -23.5515, lng: -46.6323 }, { lat: -23.5525, lng: -46.6313 }] },
-		{ route: routes[3], stops: [{ lat: -23.5465, lng: -46.6373 }, { lat: -23.5475, lng: -46.6363 }, { lat: -23.5485, lng: -46.6353 }, { lat: -23.5495, lng: -46.6343 }, { lat: -23.5505, lng: -46.6333 }] },
-		{ route: routes[4], stops: [{ lat: -23.5455, lng: -46.6383 }, { lat: -23.5465, lng: -46.6373 }, { lat: -23.5475, lng: -46.6363 }, { lat: -23.5485, lng: -46.6353 }, { lat: -23.5495, lng: -46.6343 }, { lat: -23.5505, lng: -46.6333 }] },
+	// 35 fixed device locations spread across São Paulo
+	const deviceLocations = [
+		// Centro region (hottest)
+		{ lat: -23.5505, lng: -46.6333, name: "Terminal Central", baseTempOffset: 6 },
+		{ lat: -23.5510, lng: -46.6340, name: "Praça República", baseTempOffset: 5 },
+		{ lat: -23.5500, lng: -46.6325, name: "Av. Paulista", baseTempOffset: 5.5 },
+		{ lat: -23.5495, lng: -46.6338, name: "Rua Augusta", baseTempOffset: 5 },
+
+		// Zona Norte
+		{ lat: -23.5455, lng: -46.6383, name: "Av. Principal", baseTempOffset: 4 },
+		{ lat: -23.5445, lng: -46.6393, name: "Jardim São Vicente", baseTempOffset: 3.5 },
+		{ lat: -23.5435, lng: -46.6403, name: "Vila Serventina", baseTempOffset: 3 },
+		{ lat: -23.5425, lng: -46.6413, name: "Jardim Aliança", baseTempOffset: 3 },
+		{ lat: -23.5415, lng: -46.6423, name: "Jardim Rochdal", baseTempOffset: 2.5 },
+		{ lat: -23.5465, lng: -46.6373, name: "Jardim Santa Cecília", baseTempOffset: 4 },
+		{ lat: -23.5475, lng: -46.6363, name: "Vila dos Remédios", baseTempOffset: 3.5 },
+
+		// Zona Sul
+		{ lat: -23.5545, lng: -46.6293, name: "Jardim das Flores", baseTempOffset: 3 },
+		{ lat: -23.5555, lng: -46.6283, name: "Jardim Piratininga", baseTempOffset: 2.5 },
+		{ lat: -23.5535, lng: -46.6303, name: "Cidade das Flores", baseTempOffset: 3 },
+		{ lat: -23.5565, lng: -46.6273, name: "Parque São Domingos", baseTempOffset: 2 },
+
+		// Zona Leste
+		{ lat: -23.5485, lng: -46.6253, name: "Vila Leopoldina", baseTempOffset: 3.5 },
+		{ lat: -23.5495, lng: -46.6243, name: "Lapa", baseTempOffset: 4 },
+		{ lat: -23.5515, lng: -46.6233, name: "Água Branca", baseTempOffset: 4.5 },
+		{ lat: -23.5525, lng: -46.6223, name: "Barra Funda", baseTempOffset: 5 },
+		{ lat: -23.5535, lng: -46.6213, name: "Santa Cecília", baseTempOffset: 4.5 },
+
+		// Zona Oeste
+		{ lat: -23.5485, lng: -46.6453, name: "Pinheiros", baseTempOffset: 4 },
+		{ lat: -23.5495, lng: -46.6463, name: "Vila Madalena", baseTempOffset: 3.5 },
+		{ lat: -23.5505, lng: -46.6473, name: "Alto de Pinheiros", baseTempOffset: 3 },
+		{ lat: -23.5515, lng: -46.6483, name: "Butantã", baseTempOffset: 2.5 },
+
+		// Mais zonas centrais e adjacentes
+		{ lat: -23.5520, lng: -46.6350, name: "Consolação", baseTempOffset: 5 },
+		{ lat: -23.5530, lng: -46.6360, name: "Higienópolis", baseTempOffset: 4.5 },
+		{ lat: -23.5515, lng: -46.6323, name: "Bela Vista", baseTempOffset: 5 },
+		{ lat: -23.5525, lng: -46.6313, name: "Liberdade", baseTempOffset: 4.5 },
+		{ lat: -23.5475, lng: -46.6303, name: "Cambuci", baseTempOffset: 4 },
+		{ lat: -23.5485, lng: -46.6293, name: "Mooca", baseTempOffset: 4.5 },
+
+		// Extremos da cidade
+		{ lat: -23.5405, lng: -46.6433, name: "Casa Verde", baseTempOffset: 2 },
+		{ lat: -23.5395, lng: -46.6443, name: "Limão", baseTempOffset: 1.5 },
+		{ lat: -23.5575, lng: -46.6263, name: "Jabaquara", baseTempOffset: 2.5 },
+		{ lat: -23.5585, lng: -46.6253, name: "Vila Mariana", baseTempOffset: 3 },
+		{ lat: -23.5465, lng: -46.6493, name: "Morumbi", baseTempOffset: 2 },
 	];
 
 	// Generate readings for last 5 minutes (300 seconds)
 	for (let i = 0; i < 300; i += 30) {
 		const timestamp = now - (300 - i) * 1000;
 
-		routesWithStops.forEach(({ route, stops }) => {
-			stops.forEach((stop, idx) => {
-				// Central areas tend to be hotter
-				const distanceFromCenter = Math.sqrt(
-					Math.pow(stop.lat - SAO_PAULO_CENTER.lat, 2) +
-					Math.pow(stop.lng - SAO_PAULO_CENTER.lng, 2)
-				);
+		deviceLocations.forEach((location, idx) => {
+			// Base temperature varies by location
+			let baseTemp = 30 + location.baseTempOffset;
 
-				// Base temperature varies by location
-				let baseTemp = 32 + (distanceFromCenter * 1000); // Higher temp in center
+			// Add some randomness
+			baseTemp += (Math.random() - 0.5) * 3;
 
-				// Add some randomness
-				baseTemp += (Math.random() - 0.5) * 4;
+			// Time-based variation (hotter during day)
+			const hour = new Date(timestamp).getHours();
+			const timeFactor = hour >= 12 && hour <= 16 ? 3 : hour >= 10 && hour <= 18 ? 2 : 1;
+			baseTemp += timeFactor;
 
-				// Time-based variation (hotter during day)
-				const hour = new Date(timestamp).getHours();
-				const timeFactor = hour >= 12 && hour <= 16 ? 3 : hour >= 10 && hour <= 18 ? 2 : 1;
-				baseTemp += timeFactor;
-
-				// Terminal Central is hottest
-				if (Math.abs(stop.lat - -23.5505) < 0.001 && Math.abs(stop.lng - -46.6333) < 0.001) {
-					baseTemp = 38.5 + (Math.random() - 0.5) * 2;
-				}
-
-				readings.push({
-					timestamp,
-					lat: stop.lat + (Math.random() - 0.5) * 0.002, // Small random offset
-					lng: stop.lng + (Math.random() - 0.5) * 0.002,
-					temperature: Math.max(25, Math.min(40, baseTemp)),
-					routeId: route.id,
-					deviceId: `device-${route.id}-${idx}`,
-				});
+			readings.push({
+				timestamp,
+				lat: location.lat + (Math.random() - 0.5) * 0.0005, // Very small random offset
+				lng: location.lng + (Math.random() - 0.5) * 0.0005,
+				temperature: Math.max(25, Math.min(42, baseTemp)),
+				deviceId: `device-${String(idx + 1).padStart(3, '0')}`,
 			});
 		});
 	}
@@ -233,56 +262,166 @@ export function generateHotspots(today: string, now: number) {
 			name: "Terminal Central",
 			lat: -23.5505,
 			lng: -46.6333,
-			maxTemp: 38.5,
-			duration: 45,
-			population: 2500,
+			maxTemp: 40.2,
+			duration: 65,
+			population: 3200,
 			riskLevel: "Emergency" as const,
+			date: today,
+			startTime: now - 65 * 60 * 1000,
+		},
+		{
+			name: "Av. Paulista",
+			lat: -23.5500,
+			lng: -46.6325,
+			maxTemp: 39.8,
+			duration: 58,
+			population: 2800,
+			riskLevel: "Emergency" as const,
+			date: today,
+			startTime: now - 58 * 60 * 1000,
+		},
+		{
+			name: "Praça República",
+			lat: -23.5510,
+			lng: -46.6340,
+			maxTemp: 38.5,
+			duration: 52,
+			population: 2400,
+			riskLevel: "Emergency" as const,
+			date: today,
+			startTime: now - 52 * 60 * 1000,
+		},
+		{
+			name: "Barra Funda",
+			lat: -23.5525,
+			lng: -46.6223,
+			maxTemp: 38.1,
+			duration: 48,
+			population: 2100,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 48 * 60 * 1000,
+		},
+		{
+			name: "Consolação",
+			lat: -23.5520,
+			lng: -46.6350,
+			maxTemp: 37.9,
+			duration: 45,
+			population: 1950,
+			riskLevel: "Danger" as const,
 			date: today,
 			startTime: now - 45 * 60 * 1000,
 		},
 		{
-			name: "Av. Principal - Zona Norte",
-			lat: -23.5455,
-			lng: -46.6383,
-			maxTemp: 37.2,
-			duration: 32,
+			name: "Rua Augusta",
+			lat: -23.5495,
+			lng: -46.6338,
+			maxTemp: 37.6,
+			duration: 42,
 			population: 1800,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 42 * 60 * 1000,
+		},
+		{
+			name: "Liberdade",
+			lat: -23.5525,
+			lng: -46.6313,
+			maxTemp: 37.2,
+			duration: 38,
+			population: 1650,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 38 * 60 * 1000,
+		},
+		{
+			name: "Água Branca",
+			lat: -23.5515,
+			lng: -46.6233,
+			maxTemp: 36.8,
+			duration: 35,
+			population: 1500,
+			riskLevel: "Danger" as const,
+			date: today,
+			startTime: now - 35 * 60 * 1000,
+		},
+		{
+			name: "Lapa",
+			lat: -23.5495,
+			lng: -46.6243,
+			maxTemp: 36.5,
+			duration: 32,
+			population: 1400,
 			riskLevel: "Danger" as const,
 			date: today,
 			startTime: now - 32 * 60 * 1000,
 		},
 		{
-			name: "Praça do Mercado",
-			lat: -23.5505,
-			lng: -46.6333,
-			maxTemp: 36.1,
+			name: "Pinheiros",
+			lat: -23.5485,
+			lng: -46.6453,
+			maxTemp: 36.2,
+			duration: 30,
+			population: 1300,
+			riskLevel: "Caution" as const,
+			date: today,
+			startTime: now - 30 * 60 * 1000,
+		},
+		{
+			name: "Av. Principal - Zona Norte",
+			lat: -23.5455,
+			lng: -46.6383,
+			maxTemp: 35.9,
 			duration: 28,
 			population: 1200,
-			riskLevel: "Danger" as const,
+			riskLevel: "Caution" as const,
 			date: today,
 			startTime: now - 28 * 60 * 1000,
 		},
 		{
-			name: "Rua Comercial - Centro",
-			lat: -23.5505,
-			lng: -46.6333,
-			maxTemp: 35.5,
-			duration: 18,
-			population: 800,
+			name: "Mooca",
+			lat: -23.5485,
+			lng: -46.6293,
+			maxTemp: 35.6,
+			duration: 26,
+			population: 1100,
 			riskLevel: "Caution" as const,
 			date: today,
-			startTime: now - 18 * 60 * 1000,
+			startTime: now - 26 * 60 * 1000,
 		},
 		{
-			name: "Jardim das Flores",
-			lat: -23.5545,
-			lng: -46.6293,
-			maxTemp: 34.8,
-			duration: 15,
-			population: 600,
+			name: "Cambuci",
+			lat: -23.5475,
+			lng: -46.6303,
+			maxTemp: 35.3,
+			duration: 24,
+			population: 1000,
 			riskLevel: "Caution" as const,
 			date: today,
-			startTime: now - 15 * 60 * 1000,
+			startTime: now - 24 * 60 * 1000,
+		},
+		{
+			name: "Jardim Santa Cecília",
+			lat: -23.5465,
+			lng: -46.6373,
+			maxTemp: 35.0,
+			duration: 22,
+			population: 950,
+			riskLevel: "Caution" as const,
+			date: today,
+			startTime: now - 22 * 60 * 1000,
+		},
+		{
+			name: "Vila dos Remédios",
+			lat: -23.5475,
+			lng: -46.6363,
+			maxTemp: 34.7,
+			duration: 20,
+			population: 850,
+			riskLevel: "Caution" as const,
+			date: today,
+			startTime: now - 20 * 60 * 1000,
 		},
 	];
 }
