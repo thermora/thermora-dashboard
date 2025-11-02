@@ -5,8 +5,31 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", "Geist", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+    "Courier New", monospace;
+
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --font-rounded: "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --font-compact: "SF Compact Display", "SF Compact Text", -apple-system,
+    BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --font-family-sans: var(--font-sans);
+  --font-family-mono: var(--font-mono);
+  --font-family-display: var(--font-display);
+  --font-family-text: var(--font-text);
+  --font-family-rounded: var(--font-rounded);
+  --font-family-compact: var(--font-compact);
 }
 
 html,
@@ -131,5 +154,41 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Apply SF Pro Display for headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* Apply SF Pro Text for body text */
+  p,
+  span,
+  div,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  label {
+    font-family: var(--font-text);
+  }
+
+  /* Apply SF Mono for code/monospace */
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
   }
 }

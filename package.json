@@ -1,6 +1,19 @@
 {
   "name": "thermora-dashboard",
+  "devDependencies": {
+    "turbo": "^2.5.4"
+  },
+  "packageManager": "bun@1.3.1",
   "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F @thermora-dashboard/backend dev",
+    "dev:setup": "turbo -F @thermora-dashboard/backend dev:setup"
+  },
   "type": "module",
   "workspaces": {
     "packages": [
@@ -15,18 +28,7 @@
       "typescript": "^5"
     }
   },
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "check-types": "turbo check-types",
-    "dev:native": "turbo -F native dev",
-    "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F @thermora-dashboard/backend dev",
-    "dev:setup": "turbo -F @thermora-dashboard/backend dev:setup"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "turbo": "^2.5.4"
-  },
-  "packageManager": "bun@1.3.1"
+  "dependencies": {
+    "pmtiles": "^4.3.0"
+  }
 }
