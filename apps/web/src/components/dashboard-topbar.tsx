@@ -47,8 +47,8 @@ export default function DashboardTopbar({
               <Image
                 src={IconThermora}
                 alt="Thermora"
-                width={56}
-                height={56}
+                width={36}
+                height={36}
                 quality={100}
               />
             </div>
