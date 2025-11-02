@@ -12,7 +12,8 @@
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F @thermora-dashboard/backend dev",
-    "dev:setup": "turbo -F @thermora-dashboard/backend dev:setup"
+    "dev:setup": "turbo -F @thermora-dashboard/backend dev:setup",
+    "deploy:backend": "turbo -F @thermora-dashboard/backend deploy"
   },
   "type": "module",
   "workspaces": {

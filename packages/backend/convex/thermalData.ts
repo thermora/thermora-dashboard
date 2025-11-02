@@ -266,27 +266,26 @@ export const getDevices = query({
 		const mockRoutes = generateRoutes().filter((r) => r.active);
 		const allRoutes = routes.length > 0 ? routes : mockRoutes;
 
-		// Get all recent readings
-		const recentReadings = await ctx.db
-			.query("thermalReadings")
-			.withIndex("by_timestamp", (q) => q.gte("timestamp", todayStart))
-			.collect();
+	// Get all recent readings
+	const recentReadings = await ctx.db
+		.query("thermalReadings")
+		.withIndex("by_timestamp", (q) => q.gte("timestamp", todayStart))
+		.collect();
 
-		let readings = recentReadings;
-		if (readings.length === 0) {
-			readings = generateThermalReadings(now);
-		}
+	// Use mock data if no readings exist
+	const mockReadings = recentReadings.length === 0 ? generateThermalReadings(now) : [];
+	const allReadings = recentReadings.length > 0 ? recentReadings : mockReadings;
 
-		// Group readings by deviceId
-		const deviceMap = new Map<string, {
-			deviceId: string;
-			routeId?: string;
-			lastReading: number;
-			currentTemp: number;
-			firstReadingToday: number;
-		}>();
+	// Group readings by deviceId
+	const deviceMap = new Map<string, {
+		deviceId: string;
+		routeId?: string;
+		lastReading: number;
+		currentTemp: number;
+		firstReadingToday: number;
+	}>();
 
-		readings.forEach((reading) => {
+	allReadings.forEach((reading) => {
 			const existing = deviceMap.get(reading.deviceId);
 			if (!existing || reading.timestamp > existing.lastReading) {
 				deviceMap.set(reading.deviceId, {
