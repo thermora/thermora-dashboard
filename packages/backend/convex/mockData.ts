@@ -297,3 +297,121 @@ export function generateHistoricalData() {
 		temperature: baseTemp + Math.sin((hour - 6) / 12 * Math.PI) * 4 + (Math.random() - 0.5) * 2,
 	}));
 }
+
+// Generate neighborhoods (hoods) in São Paulo area
+export function generateNeighborhoods() {
+	return [
+		{
+			id: "hood-1",
+			name: "Vila Jaguara",
+			boundaries: [
+				{ lat: -23.5495, lng: -46.6363 },
+				{ lat: -23.5495, lng: -46.6343 },
+				{ lat: -23.5475, lng: -46.6343 },
+				{ lat: -23.5475, lng: -46.6363 },
+				{ lat: -23.5495, lng: -46.6363 },
+			],
+			priority: "high" as const,
+			status: "online" as const,
+			active: true,
+		},
+		{
+			id: "hood-2",
+			name: "Jardim Santa Cecília",
+			boundaries: [
+				{ lat: -23.5475, lng: -46.6383 },
+				{ lat: -23.5475, lng: -46.6363 },
+				{ lat: -23.5455, lng: -46.6363 },
+				{ lat: -23.5455, lng: -46.6383 },
+				{ lat: -23.5475, lng: -46.6383 },
+			],
+			priority: "high" as const,
+			status: "online" as const,
+			active: true,
+		},
+		{
+			id: "hood-3",
+			name: "Vila dos Remédios",
+			boundaries: [
+				{ lat: -23.5485, lng: -46.6373 },
+				{ lat: -23.5485, lng: -46.6353 },
+				{ lat: -23.5465, lng: -46.6353 },
+				{ lat: -23.5465, lng: -46.6373 },
+				{ lat: -23.5485, lng: -46.6373 },
+			],
+			priority: "medium" as const,
+			status: "offline" as const,
+			active: true,
+		},
+		{
+			id: "hood-4",
+			name: "Jardim das Flores",
+			boundaries: [
+				{ lat: -23.5555, lng: -46.6303 },
+				{ lat: -23.5555, lng: -46.6283 },
+				{ lat: -23.5535, lng: -46.6283 },
+				{ lat: -23.5535, lng: -46.6303 },
+				{ lat: -23.5555, lng: -46.6303 },
+			],
+			priority: "medium" as const,
+			status: "online" as const,
+			active: true,
+		},
+		{
+			id: "hood-5",
+			name: "Centro",
+			boundaries: [
+				{ lat: -23.5515, lng: -46.6353 },
+				{ lat: -23.5515, lng: -46.6313 },
+				{ lat: -23.5495, lng: -46.6313 },
+				{ lat: -23.5495, lng: -46.6353 },
+				{ lat: -23.5515, lng: -46.6353 },
+			],
+			priority: "high" as const,
+			status: "online" as const,
+			active: true,
+		},
+		{
+			id: "hood-6",
+			name: "Jardim São Vicente",
+			boundaries: [
+				{ lat: -23.5455, lng: -46.6403 },
+				{ lat: -23.5455, lng: -46.6383 },
+				{ lat: -23.5435, lng: -46.6383 },
+				{ lat: -23.5435, lng: -46.6403 },
+				{ lat: -23.5455, lng: -46.6403 },
+			],
+			priority: "medium" as const,
+			status: "offline" as const,
+			active: true,
+		},
+		{
+			id: "hood-7",
+			name: "Vila Serventina",
+			boundaries: [
+				{ lat: -23.5445, lng: -46.6413 },
+				{ lat: -23.5445, lng: -46.6393 },
+				{ lat: -23.5425, lng: -46.6393 },
+				{ lat: -23.5425, lng: -46.6413 },
+				{ lat: -23.5445, lng: -46.6413 },
+			],
+			priority: "low" as const,
+			status: "offline" as const,
+			active: true,
+		},
+		{
+			id: "hood-8",
+			name: "Jardim Aliança",
+			boundaries: [
+				{ lat: -23.5435, lng: -46.6423 },
+				{ lat: -23.5435, lng: -46.6403 },
+				{ lat: -23.5415, lng: -46.6403 },
+				{ lat: -23.5415, lng: -46.6423 },
+				{ lat: -23.5435, lng: -46.6423 },
+			],
+			priority: "low" as const,
+			status: "online" as const,
+			active: true,
+		},
+	];
+}

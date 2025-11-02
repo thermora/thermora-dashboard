@@ -14,8 +14,10 @@ import {
 interface MapControlsProps {
   showRoutes?: boolean;
   showStops?: boolean;
+  showNeighborhoods?: boolean;
   onToggleRoutes?: (enabled: boolean) => void;
   onToggleStops?: (enabled: boolean) => void;
+  onToggleNeighborhoods?: (enabled: boolean) => void;
   onExportPNG?: () => void;
   onExportPDF?: () => void;
   onZoomIn?: () => void;
@@ -26,8 +28,10 @@ interface MapControlsProps {
 export default function MapControls({
   showRoutes = true,
   showStops = true,
+  showNeighborhoods = false,
   onToggleRoutes,
   onToggleStops,
+  onToggleNeighborhoods,
   onExportPNG,
   onExportPDF,
   onZoomIn,
@@ -90,6 +94,16 @@ export default function MapControls({
             />
             <Label htmlFor="stops" className="text-sm cursor-pointer">
               Pontos de Parada
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="neighborhoods"
+              checked={showNeighborhoods}
+              onCheckedChange={(checked) => onToggleNeighborhoods?.(checked === true)}
+            />
+            <Label htmlFor="neighborhoods" className="text-sm cursor-pointer">
+              Bairros
             </Label>
           </div>
         </div>

@@ -50,6 +50,14 @@ interface ThermalMapProps {
     name: string;
     coordinates: Array<{ lat: number; lng: number }>;
   }>;
+  neighborhoods?: Array<{
+    id: string;
+    name: string;
+    boundaries: Array<{ lat: number; lng: number }>;
+    priority: "high" | "medium" | "low";
+    status: "online" | "offline";
+  }>;
+  showNeighborhoods?: boolean;
   onPointClick?: (lat: number, lng: number, temperature: number) => void;
   onRouteClick?: (routeId: string) => void;
 }
@@ -62,13 +70,14 @@ export interface ThermalMapRef {
 }
 
 const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
-  ({ readings = [], routes = [], onPointClick, onRouteClick }, ref) => {
+  ({ readings = [], routes = [], neighborhoods = [], showNeighborhoods = false, onPointClick, onRouteClick }, ref) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
     const busMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
     const animationFrameRef = useRef<number | undefined>(undefined);
+    const addedNeighborhoodsRef = useRef<Set<string>>(new Set());
 
     useImperativeHandle(ref, () => ({
       flyTo: (lat: number, lng: number) => {
@@ -397,6 +406,154 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
         });
       };
     }, [mapLoaded, routes, onRouteClick]);
+
+    // Add neighborhoods layer
+    useEffect(() => {
+      if (!map.current || !mapLoaded) return;
+
+      // Remove neighborhoods if they exist but shouldn't be shown
+      if (!showNeighborhoods || neighborhoods.length === 0) {
+        if (map.current.getSource("neighborhoods")) {
+          // Remove all previously added neighborhoods
+          addedNeighborhoodsRef.current.forEach((hoodId) => {
+            if (map.current?.getLayer(`neighborhood-${hoodId}-fill`)) {
+              map.current.removeLayer(`neighborhood-${hoodId}-fill`);
+            }
+            if (map.current?.getLayer(`neighborhood-${hoodId}-outline`)) {
+              map.current.removeLayer(`neighborhood-${hoodId}-outline`);
+            }
+          });
+          map.current.removeSource("neighborhoods");
+          addedNeighborhoodsRef.current.clear();
+        }
+        return;
+      }
+
+      // Remove existing neighborhoods if they exist
+      if (map.current.getSource("neighborhoods")) {
+        addedNeighborhoodsRef.current.forEach((hoodId) => {
+          if (map.current?.getLayer(`neighborhood-${hoodId}-fill`)) {
+            map.current.removeLayer(`neighborhood-${hoodId}-fill`);
+          }
+          if (map.current?.getLayer(`neighborhood-${hoodId}-outline`)) {
+            map.current.removeLayer(`neighborhood-${hoodId}-outline`);
+          }
+        });
+        map.current.removeSource("neighborhoods");
+        addedNeighborhoodsRef.current.clear();
+      }
+
+      // Add neighborhoods source
+      map.current.addSource("neighborhoods", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: neighborhoods.map((hood) => ({
+            type: "Feature" as const,
+            geometry: {
+              type: "Polygon" as const,
+              coordinates: [hood.boundaries.map((b) => [b.lng, b.lat])],
+            },
+            properties: {
+              hoodId: hood.id,
+              name: hood.name,
+              priority: hood.priority,
+              status: hood.status,
+            },
+          })),
+        },
+      });
+
+      // Add neighborhoods layers with priority-based colors
+      neighborhoods.forEach((hood) => {
+        const isOffline = hood.status === "offline";
+        
+        const priorityColors = {
+          high: "rgba(239, 68, 68, 0.3)", // red
+          medium: "rgba(251, 191, 36, 0.3)", // amber
+          low: "rgba(34, 197, 94, 0.3)", // green
+        };
+
+        const priorityOutlineColors = {
+          high: "#ef4444",
+          medium: "#fbbf24",
+          low: "#22c55e",
+        };
+
+        // Use gray colors for offline neighborhoods
+        const fillColor = isOffline 
+          ? "rgba(148, 163, 184, 0.2)" // slate gray
+          : priorityColors[hood.priority];
+        
+        const outlineColor = isOffline
+          ? "#94a3b8" // slate gray
+          : priorityOutlineColors[hood.priority];
+
+        // Add fill layer
+        map.current?.addLayer({
+          id: `neighborhood-${hood.id}-fill`,
+          type: "fill",
+          source: "neighborhoods",
+          filter: ["==", ["get", "hoodId"], hood.id],
+          paint: {
+            "fill-color": fillColor,
+            "fill-opacity": isOffline ? 0.1 : 0.2,
+          },
+        });
+
+        // Add outline layer with dashed pattern for offline
+        const outlinePaint: any = {
+          "line-color": outlineColor,
+          "line-width": isOffline ? 1.5 : 2,
+          "line-opacity": isOffline ? 0.5 : 0.8,
+        };
+        
+        if (isOffline) {
+          outlinePaint["line-dasharray"] = [2, 2];
+        }
+
+        map.current?.addLayer({
+          id: `neighborhood-${hood.id}-outline`,
+          type: "line",
+          source: "neighborhoods",
+          filter: ["==", ["get", "hoodId"], hood.id],
+          paint: outlinePaint,
+        });
+
+        // Add click handler
+        const hoodClickHandler = (e: MapMouseEvent) => {
+          const statusLabel = hood.status === "online" ? "Online" : "Offline";
+          const statusColor = hood.status === "online" ? "text-emerald-600" : "text-slate-500";
+          
+          const popup = new maplibregl.Popup({ offset: 25 })
+            .setHTML(
+              `
+              <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">${hood.name}</h3>
+                <p class="text-xs text-gray-600 mb-1">Prioridade: ${
+                  hood.priority === "high" ? "Alta" : hood.priority === "medium" ? "Média" : "Baixa"
+                }</p>
+                <p class="text-xs ${statusColor} font-medium">Status: ${statusLabel}</p>
+              </div>
+            `
+            )
+            .setLngLat(e.lngLat)
+            .addTo(map.current!);
+        };
+
+        map.current?.on("click", `neighborhood-${hood.id}-fill`, hoodClickHandler);
+        map.current?.on("click", `neighborhood-${hood.id}-outline`, hoodClickHandler);
+        
+        addedNeighborhoodsRef.current.add(hood.id);
+      });
+
+      return () => {
+        neighborhoods.forEach((hood) => {
+          map.current?.off("click", `neighborhood-${hood.id}-fill`);
+          map.current?.off("click", `neighborhood-${hood.id}-outline`);
+        });
+      };
+    }, [mapLoaded, neighborhoods, showNeighborhoods]);
 
     // Add bus routes to map
     useEffect(() => {

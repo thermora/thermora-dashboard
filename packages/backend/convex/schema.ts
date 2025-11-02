@@ -42,4 +42,15 @@ export default defineSchema({
 		lng: v.number(),
 		routeIds: v.array(v.string()),
 	}).index("by_route", ["routeIds"]),
+	neighborhoods: defineTable({
+		id: v.string(),
+		name: v.string(),
+		boundaries: v.array(v.object({
+			lat: v.number(),
+			lng: v.number(),
+		})),
+		priority: v.union(v.literal("high"), v.literal("medium"), v.literal("low")),
+		status: v.union(v.literal("online"), v.literal("offline")),
+		active: v.boolean(),
+	}).index("by_active", ["active"]),
 });

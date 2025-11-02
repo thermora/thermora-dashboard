@@ -1,5 +1,5 @@
 import { query } from "./_generated/server";
-import { generateRoutes, generateBusStops, generateThermalReadings, generateHotspots, generateHistoricalData } from "./mockData";
+import { generateRoutes, generateBusStops, generateThermalReadings, generateHotspots, generateHistoricalData, generateNeighborhoods } from "./mockData";
 
 // Get current thermal readings (last 5 minutes)
 export const getCurrentReadings = query({
@@ -249,6 +249,23 @@ export const getBusStops = query({
 	},
 });
 
+// Get active neighborhoods (hoods)
+export const getNeighborhoods = query({
+	handler: async (ctx) => {
+		const neighborhoods = await ctx.db
+			.query("neighborhoods")
+			.withIndex("by_active", (q) => q.eq("active", true))
+			.collect();
+
+		if (neighborhoods.length > 0) {
+			return neighborhoods;
+		}
+
+		// Return mock neighborhoods if none exist
+		return generateNeighborhoods().filter((n) => n.active);
+	},
+});
+
 // Get devices with status and route information
 export const getDevices = query({
 	handler: async (ctx) => {
@@ -301,7 +318,7 @@ export const getDevices = query({
 		});
 
 		// Convert to array and enrich with route names
-		const devices = Array.from(deviceMap.values()).map((device) => {
+		let devices = Array.from(deviceMap.values()).map((device) => {
 			const route = allRoutes.find((r) => r.id === device.routeId);
 			const routeName = route?.name || device.routeId || "Sem rota";
 
@@ -328,7 +345,36 @@ export const getDevices = query({
 			};
 		});
 
-		// Sort by deviceId
-		return devices.sort((a, b) => a.deviceId.localeCompare(b.deviceId));
+		// Sort by deviceId first
+		devices = devices.sort((a, b) => a.deviceId.localeCompare(b.deviceId));
+
+		// Simulate some devices as offline when using mock data
+		if (recentReadings.length === 0 && devices.length > 0) {
+			const fifteenMinutesAgo = now - 15 * 60 * 1000;
+			const thirtyMinutesAgo = now - 30 * 60 * 1000;
+			
+			// Make some devices offline (every 3rd device starting from index 2)
+			devices = devices.map((device, index) => {
+				// Use device index to deterministically assign offline status
+				// Makes approximately 30% of devices offline
+				const shouldBeOffline = index % 3 === 2;
+				
+				if (shouldBeOffline) {
+					// Set lastReading to be older than 10 minutes
+					const offlineTimestamp = index % 2 === 0 
+						? fifteenMinutesAgo - (index * 60 * 1000) // Varied offline times
+						: thirtyMinutesAgo - (index * 60 * 1000);
+					
+					return {
+						...device,
+						status: "offline" as const,
+						lastReading: offlineTimestamp,
+					};
+				}
+				return device;
+			});
+		}
+
+		return devices;
 	},
 });
