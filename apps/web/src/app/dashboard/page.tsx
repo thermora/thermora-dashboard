@@ -93,9 +93,8 @@ export default function DashboardPage() {
         onTimeFilterChange={handleTimeFilterChange}
         onExportClick={handleExportClick}
       />
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Map - Approximately 2/3 width */}
-        <div className="relative w-2/3 h-full">
+      <div className="flex flex-1 relative overflow-hidden">
+        <div className="relative w-full h-full">
           <ThermalMap
             ref={mapRef}
             readings={readings || []}
@@ -120,8 +119,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Right: Panel - Approximately 1/3 width */}
-        <div className="flex w-1/3 flex-col gap-4 overflow-y-auto bg-white p-6 border-l border-slate-200">
+        <div className="flex max-w-xl z-10 absolute right-4 top-4 flex-col gap-4 overflow-y-auto bg-white p-6 border rounded-xl border-slate-200">
           {stats === undefined ? (
             <div className="text-center text-muted-foreground py-8">
               Carregando estatísticas...

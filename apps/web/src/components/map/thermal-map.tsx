@@ -10,9 +10,138 @@ import {
 import maplibregl from "maplibre-gl";
 import type { Map, MapMouseEvent } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import protomapsLightStyle from "./protomaps-light-style.json";
 
 let protocolRegistered = false;
+
+// Protomaps style using PMTiles
+const PROTOMAPS_STYLE = {
+  version: 8,
+  sources: {
+    protomaps: {
+      type: "vector",
+      url: "pmtiles://https://build.protomaps.com/20241114.pmtiles",
+      attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>'
+    }
+  },
+  layers: [
+    {
+      id: "background",
+      type: "background",
+      paint: {
+        "background-color": "#e0e0e0"
+      }
+    },
+    {
+      id: "earth",
+      type: "fill",
+      source: "protomaps",
+      "source-layer": "earth",
+      paint: {
+        "fill-color": "#e2dfda"
+      }
+    },
+    {
+      id: "landuse",
+      type: "fill",
+      source: "protomaps",
+      "source-layer": "landuse",
+      paint: {
+        "fill-color": "#e8e8e8"
+      }
+    },
+    {
+      id: "water",
+      type: "fill",
+      source: "protomaps",
+      "source-layer": "water",
+      paint: {
+        "fill-color": "#80deea"
+      }
+    },
+    {
+      id: "buildings",
+      type: "fill",
+      source: "protomaps",
+      "source-layer": "buildings",
+      minzoom: 14,
+      paint: {
+        "fill-color": "#d1d1d1",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      id: "roads",
+      type: "line",
+      source: "protomaps",
+      "source-layer": "roads",
+      paint: {
+        "line-color": "#ffffff",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.6],
+          ["zoom"],
+          10, 0.5,
+          14, 2,
+          18, 8
+        ]
+      }
+    },
+    {
+      id: "roads-major",
+      type: "line",
+      source: "protomaps",
+      "source-layer": "roads",
+      filter: ["in", ["get", "pmap:kind"], ["literal", ["highway", "major_road"]]],
+      paint: {
+        "line-color": "#f5f5f5",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.6],
+          ["zoom"],
+          8, 1,
+          14, 4,
+          18, 12
+        ]
+      }
+    },
+    {
+      id: "boundaries",
+      type: "line",
+      source: "protomaps",
+      "source-layer": "boundaries",
+      paint: {
+        "line-color": "#adadad",
+        "line-width": 0.5,
+        "line-dasharray": [3, 2]
+      }
+    },
+    {
+      id: "places",
+      type: "symbol",
+      source: "protomaps",
+      "source-layer": "places",
+      filter: ["==", ["get", "pmap:kind"], "locality"],
+      layout: {
+        "text-field": ["get", "name"],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          2, 10,
+          6, 14,
+          10, 18
+        ]
+      },
+      paint: {
+        "text-color": "#5c5c5c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      }
+    }
+  ],
+  glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
+};
 
 interface ThermalMapProps {
   readings?: Array<{
@@ -54,24 +183,41 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     useEffect(() => {
       if (!mapContainer.current || map.current) return;
 
-      // Register PMTiles protocol (only once)
-      if (!protocolRegistered) {
-        const pmtilesProtocol = new Protocol();
-        maplibregl.addProtocol("pmtiles", pmtilesProtocol.tile);
-        protocolRegistered = true;
+      try {
+        // Register PMTiles protocol (only once)
+        if (!protocolRegistered) {
+          const protocol = new Protocol();
+          maplibregl.addProtocol("pmtiles", protocol.tile);
+          protocolRegistered = true;
+          console.log("PMTiles protocol registered");
+        }
+
+        // Initialize map with Protomaps style
+        map.current = new maplibregl.Map({
+          container: mapContainer.current,
+          style: PROTOMAPS_STYLE as any,
+          center: [-46.6333, -23.5505], // São Paulo
+          zoom: 12,
+        });
+
+        map.current.on("load", () => {
+          console.log("✅ Protomaps loaded successfully!");
+          setMapLoaded(true);
+        });
+
+        map.current.on("error", (e) => {
+          console.error("❌ Map error:", e);
+        });
+
+        map.current.on("sourcedata", (e) => {
+          if (e.isSourceLoaded) {
+            console.log("📍 Source loaded:", e.sourceId);
+          }
+        });
+
+      } catch (error) {
+        console.error("Failed to initialize map:", error);
       }
-
-      // Initialize map with Protomaps light style
-      map.current = new maplibregl.Map({
-        container: mapContainer.current,
-        style: protomapsLightStyle as any,
-        center: [-46.6333, -23.5505], // São Paulo
-        zoom: 12,
-      });
-
-      map.current.on("load", () => {
-        setMapLoaded(true);
-      });
 
       return () => {
         map.current?.remove();
