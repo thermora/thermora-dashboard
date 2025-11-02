@@ -178,47 +178,78 @@ export default function DispositivosPage() {
 
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             {devices === undefined ? (
-              <div className="p-6">
-                <div className="animate-pulse space-y-4">
-                  {/* Header skeleton */}
-                  <div className="flex items-center gap-4 pb-4 border-b border-slate-200">
-                    <div className="h-3 w-[280px] bg-slate-200 rounded" />
-                    <div className="h-3 w-[140px] bg-slate-200 rounded" />
-                    <div className="h-3 w-[240px] bg-slate-200 rounded" />
-                    <div className="h-3 w-[160px] bg-slate-200 rounded" />
-                    <div className="h-3 w-[140px] bg-slate-200 rounded" />
-                  </div>
-                  {/* Row skeletons */}
+              <Root>
+                <Header>
+                  <Row>
+                    <Head className="w-[280px]">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-24 bg-slate-200 rounded animate-pulse" />
+                      </div>
+                    </Head>
+                    <Head className="w-[140px]">
+                      <div className="h-3 w-16 bg-slate-200 rounded animate-pulse" />
+                    </Head>
+                    <Head className="w-[240px]">
+                      <div className="h-3 w-28 bg-slate-200 rounded animate-pulse" />
+                    </Head>
+                    <Head className="w-[160px]">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3.5 w-3.5 bg-slate-200 rounded animate-pulse" />
+                        <div className="h-3 w-24 bg-slate-200 rounded animate-pulse" />
+                      </div>
+                    </Head>
+                    <Head className="w-[140px]">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3.5 w-3.5 bg-slate-200 rounded animate-pulse" />
+                        <div className="h-3 w-20 bg-slate-200 rounded animate-pulse" />
+                      </div>
+                    </Head>
+                  </Row>
+                </Header>
+                <Body>
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-center gap-4 py-4">
-                      {/* Device info */}
-                      <div className="flex items-center gap-3 w-[280px]">
-                        <div className="h-10 w-10 bg-slate-200 rounded-lg" />
-                        <div className="space-y-2">
-                          <div className="h-3 w-32 bg-slate-200 rounded" />
-                          <div className="h-2 w-24 bg-slate-200 rounded" />
+                    <Row key={i} className="animate-pulse">
+                      <Cell className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="shrink-0 h-10 w-10 rounded-lg bg-slate-200" />
+                          <div className="flex flex-col gap-2 min-w-0">
+                            <div className="h-3.5 w-32 bg-slate-200 rounded" />
+                            <div className="h-3 w-24 bg-slate-200 rounded" />
+                          </div>
                         </div>
-                      </div>
-                      {/* Status badge */}
-                      <div className="w-[140px]">
-                        <div className="h-6 w-20 bg-slate-200 rounded-full" />
-                      </div>
-                      {/* Temperature gauge */}
-                      <div className="w-[240px]">
-                        <div className="h-2 w-full bg-slate-200 rounded-full" />
-                      </div>
-                      {/* Last reading */}
-                      <div className="w-[160px]">
-                        <div className="h-3 w-24 bg-slate-200 rounded" />
-                      </div>
-                      {/* Time on route */}
-                      <div className="w-[140px]">
-                        <div className="h-3 w-16 bg-slate-200 rounded" />
-                      </div>
-                    </div>
+                      </Cell>
+                      <Cell className="py-4">
+                        <div className="h-7 w-24 bg-slate-200 rounded-full" />
+                      </Cell>
+                      <Cell className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-4 w-4 bg-slate-200 rounded" />
+                          <div className="flex-1 min-w-[120px] space-y-2">
+                            <div className="h-2 w-full bg-slate-200 rounded-full" />
+                            <div className="flex justify-between">
+                              <div className="h-2 w-6 bg-slate-200 rounded" />
+                              <div className="h-3 w-12 bg-slate-200 rounded" />
+                              <div className="h-2 w-6 bg-slate-200 rounded" />
+                            </div>
+                          </div>
+                        </div>
+                      </Cell>
+                      <Cell className="py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3.5 w-3.5 bg-slate-200 rounded" />
+                          <div className="h-3.5 w-20 bg-slate-200 rounded" />
+                        </div>
+                      </Cell>
+                      <Cell className="py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3.5 w-3.5 bg-slate-200 rounded" />
+                          <div className="h-3.5 w-16 bg-slate-200 rounded" />
+                        </div>
+                      </Cell>
+                    </Row>
                   ))}
-                </div>
-              </div>
+                </Body>
+              </Root>
             ) : devices.length === 0 ? (
               <div className="text-center text-slate-600 py-16">
                 <Bus className="h-12 w-12 mx-auto mb-4 text-slate-300" />
