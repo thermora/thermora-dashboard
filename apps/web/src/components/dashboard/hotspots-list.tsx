@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RiAlertLine } from "react-icons/ri";
+import { RiAlertLine, RiUserLine, RiTimeLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 
 interface Hotspot {
@@ -59,19 +59,19 @@ export default function HotspotsList({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <RiAlertLine className="h-5 w-5 text-yellow-500" />
-          Hotspots Críticos
+        <CardTitle className="flex items-center gap-2.5">
+          <RiAlertLine className="h-5 w-5 text-orange-600" />
+          <span>Hotspots Críticos</span>
           {hotspots.length > 0 && (
-            <span className="text-sm font-normal text-muted-foreground ml-auto">
-              {hotspots.length} ativos
+            <span className="text-sm font-semibold text-orange-600 ml-auto bg-orange-50 px-2.5 py-1 rounded-md">
+              {hotspots.length}
             </span>
           )}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {hotspots.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-slate-500 py-8 font-medium">
             Nenhum hotspot crítico no momento
           </div>
         ) : (
@@ -90,18 +90,22 @@ export default function HotspotsList({
                     )}`}
                   />
                   <div className="flex-1 text-left">
-                    <div className="font-medium">{hotspot.name}</div>
+                    <div className="font-semibold text-slate-900 mb-1.5">
+                      {hotspot.name}
+                    </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-sm font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                      <span className="text-sm font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-md">
                         {hotspot.maxTemp.toFixed(1)}°C
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        Pop: {formatPopulation(hotspot.population)}
+                      <span className="text-xs text-slate-600 font-medium flex items-center gap-1">
+                        <RiUserLine className="h-3.5 w-3.5" />
+                        {formatPopulation(hotspot.population)}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        Duração: {hotspot.duration} min
+                      <span className="text-xs text-slate-600 font-medium flex items-center gap-1">
+                        <RiTimeLine className="h-3.5 w-3.5" />
+                        {hotspot.duration} min
                       </span>
-                      <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
+                      <span className="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">
                         {getRiskLabel(hotspot.riskLevel)}
                       </span>
                     </div>

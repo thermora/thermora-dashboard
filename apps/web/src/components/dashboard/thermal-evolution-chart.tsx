@@ -11,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { RiLineChartLine } from "react-icons/ri";
 
 interface ThermalEvolutionChartProps {
   today?: Array<{ hour: number; temperature: number }>;
@@ -45,7 +46,8 @@ export default function ThermalEvolutionChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2.5">
+          <RiLineChartLine className="h-5 w-5 text-slate-700" />
           <span>Evolução Térmica 24h</span>
         </CardTitle>
       </CardHeader>
@@ -90,13 +92,13 @@ export default function ThermalEvolutionChart({
             />
           </LineChart>
         </ResponsiveContainer>
-        <div className="mt-4 text-sm text-muted-foreground">
+        <div className="mt-4 text-sm">
           {avgDifference > 0 ? (
-            <span className="text-red-500 font-medium">
+            <span className="text-red-600 font-semibold">
               +{avgDifference.toFixed(1)}°C acima da média histórica hoje
             </span>
           ) : (
-            <span className="text-green-500 font-medium">
+            <span className="text-green-600 font-semibold">
               {avgDifference.toFixed(1)}°C abaixo da média histórica hoje
             </span>
           )}

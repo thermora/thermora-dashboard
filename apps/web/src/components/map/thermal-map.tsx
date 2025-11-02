@@ -8,7 +8,15 @@ import {
   forwardRef,
 } from 'react';
 import { renderToString } from 'react-dom/server';
+import { Bus as BusIcon } from 'lucide-react';
 import maplibregl, { type MapMouseEvent } from 'maplibre-gl';
+import {
+  BUS_ROUTES,
+  MOCK_BUSES,
+  interpolatePosition,
+  type Bus,
+  type BusRoute,
+} from './bus-mock-data';
 
 // Simple and reliable OpenStreetMap style
 const MAP_STYLE = {
@@ -78,6 +86,9 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
+    const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
+    const busMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
+    const animationFrameRef = useRef<number | undefined>(undefined);
     const addedNeighborhoodsRef = useRef<Set<string>>(new Set());
 
     useImperativeHandle(ref, () => ({
@@ -548,7 +559,131 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
       };
     }, [mapLoaded, neighborhoods, showNeighborhoods]);
 
-    // Bus routes and animations removed - showing only thermal heatmap zones
+    // Bus route lines disabled - showing only buses with pulse animations
+    // Add and animate buses
+    useEffect(() => {
+      if (!map.current || !mapLoaded) return;
+
+      console.log('🚌 Adding and animating buses...');
+
+      // Create bus markers
+      buses.forEach((bus) => {
+        if (!busMarkersRef.current.has(bus.id)) {
+          const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
+          if (!route) return;
+
+          const position = interpolatePosition(
+            route.coordinates,
+            bus.currentPosition
+          );
+
+          // Create bus icon HTML using Lucide Bus icon
+          const busIconSvg = renderToString(
+            <BusIcon size={20} color='white' strokeWidth={2} />
+          );
+
+          const el = document.createElement('div');
+          el.className = 'bus-marker';
+          el.innerHTML = `
+            <div class="relative">
+              <!-- Pulse wave animation -->
+              <div class="absolute inset-0 -m-8">
+                <div class="bus-wave" style="border-color: ${route.color}20;"></div>
+                <div class="bus-wave animation-delay-1000" style="border-color: ${route.color}15;"></div>
+                <div class="bus-wave animation-delay-2000" style="border-color: ${route.color}10;"></div>
+              </div>
+              <!-- Bus icon -->
+              <div class="relative z-10 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                   style="background-color: ${route.color};">
+                ${busIconSvg}
+              </div>
+            </div>
+          `;
+
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', () => {
+            const popup = new maplibregl.Popup({ offset: 25 })
+              .setHTML(
+                `
+                <div class="p-3">
+                  <h3 class="font-bold text-sm mb-1">${bus.name}</h3>
+                  <p class="text-xs text-gray-600 mb-2">${route.name}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs">🌡️ ${bus.temperature.toFixed(
+                      1
+                    )}°C</span>
+                    <span class="text-xs">⚡ ${bus.speed} km/h</span>
+                  </div>
+                </div>
+              `
+              )
+              .setLngLat([position.lng, position.lat])
+              .addTo(map.current!);
+          });
+
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([position.lng, position.lat])
+            .addTo(map.current!);
+
+          busMarkersRef.current.set(bus.id, marker);
+        }
+      });
+
+      // Animation loop
+      let lastTime = Date.now();
+      const animate = () => {
+        const currentTime = Date.now();
+        const deltaTime = (currentTime - lastTime) / 1000; // seconds
+        lastTime = currentTime;
+
+        setBuses((prevBuses) =>
+          prevBuses.map((bus) => {
+            const route = BUS_ROUTES.find((r) => r.id === bus.routeId);
+            if (!route) return bus;
+
+            // Calculate new position (speed in km/h converted to position/second)
+            // Assuming average route length of ~10km
+            const positionDelta = (bus.speed / 10000) * deltaTime;
+            let newPosition = bus.currentPosition + positionDelta;
+
+            // Loop back to start if reached end
+            if (newPosition >= 1) {
+              newPosition = 0;
+            }
+
+            const position = interpolatePosition(
+              route.coordinates,
+              newPosition
+            );
+
+            // Update marker position
+            const marker = busMarkersRef.current.get(bus.id);
+            if (marker) {
+              marker.setLngLat([position.lng, position.lat]);
+            }
+
+            return {
+              ...bus,
+              currentPosition: newPosition,
+            };
+          })
+        );
+
+        animationFrameRef.current = requestAnimationFrame(animate);
+      };
+
+      animate();
+
+      return () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        busMarkersRef.current.forEach((marker: maplibregl.Marker) =>
+          marker.remove()
+        );
+        busMarkersRef.current.clear();
+      };
+    }, [mapLoaded]);
 
     return (
       <div className='relative h-full w-full'>

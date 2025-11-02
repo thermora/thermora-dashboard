@@ -1,0 +1,637 @@
+---
+description: This guideline ensures consistent, accessible, and maintainable UI components across the entire application while following modern web development best practices.
+globs: '**/*.{ts,tsx,js,jsx,css,scss,html}'
+alwaysApply: true
+---
+
+# UI/UX Guidelines
+
+## Overview
+
+This document establishes comprehensive guidelines for creating responsive, accessible, and user-friendly interfaces. These rules ensure consistency, maintainability, and optimal user experience across all components and pages.
+
+## 8-Point Grid System
+
+### Spacing Scale
+
+All spacing must follow the 8-point grid system using Tailwind CSS utilities:
+
+```css
+/* Base 8-point increments */
+0    = 0px     (space-0)
+2    = 8px     (space-2)
+4    = 16px    (space-4)
+6    = 24px    (space-6)
+8    = 32px    (space-8)
+12   = 48px    (space-12)
+16   = 64px    (space-16)
+20   = 80px    (space-20)
+24   = 96px    (space-24)
+32   = 128px   (space-32)
+```
+
+### Component Sizing
+
+- **Buttons**: Heights must be multiples of 8px (h-8, h-10, h-12)
+- **Input Fields**: Standard heights (h-8, h-10, h-12, h-14)
+- **Cards**: Padding in 8px increments (p-4, p-6, p-8)
+- **Containers**: Margins and gaps follow 8px grid (gap-4, gap-6, gap-8)
+
+### Layout Spacing
+
+```tsx
+// ✅ Correct - 8-point grid
+<div className="p-4 gap-6 mb-8">
+  <div className="space-y-4">
+    {/* Content */}
+  </div>
+</div>
+
+// ❌ Incorrect - Non-8-point values
+<div className="p-3 gap-5 mb-7">
+  {/* Content */}
+</div>
+```
+
+## Responsive Design Principles
+
+### Mobile-First Approach
+
+Always design for mobile first, then enhance for larger screens:
+
+```tsx
+// ✅ Mobile-first responsive design
+<div className="
+  flex flex-col gap-4 p-4
+  sm:flex-row sm:gap-6 sm:p-6
+  lg:gap-8 lg:p-8
+  xl:gap-12 xl:p-12
+">
+```
+
+### Breakpoint Strategy
+
+```tsx
+// Standard breakpoints
+xs: 0px      // Mobile (default)
+sm: 640px    // Small tablets
+md: 768px    // Tablets
+lg: 1024px   // Small laptops
+xl: 1280px   // Laptops
+2xl: 1536px  // Large screens
+```
+
+### Component Responsiveness
+
+```tsx
+// ✅ Responsive component structure
+export function ResponsiveCard({ children }: Props) {
+  return (
+    <div
+      className="
+      w-full rounded-lg border p-4
+      sm:rounded-xl sm:p-6
+      lg:rounded-2xl lg:p-8
+      max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl
+    "
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+### Grid Systems
+
+```tsx
+// ✅ Responsive grid layouts
+<div className="
+  grid grid-cols-1 gap-4
+  sm:grid-cols-2 sm:gap-6
+  lg:grid-cols-3 lg:gap-8
+  xl:grid-cols-4
+">
+```
+
+## Typography Guidelines
+
+### Font Sizes (8-point aligned)
+
+```tsx
+text-xs   = 12px   // Small labels, captions
+text-sm   = 14px   // Body text, descriptions
+text-base = 16px   // Default body text
+text-lg   = 18px   // Subheadings
+text-xl   = 20px   // Headings
+text-2xl  = 24px   // Large headings
+text-3xl  = 30px   // Display text
+```
+
+### Text Hierarchy
+
+```tsx
+// ✅ Proper text hierarchy
+<div>
+  <h1 className="text-3xl font-bold mb-6">Main Title</h1>
+  <h2 className="text-2xl font-semibold mb-4">Section Title</h2>
+  <h3 className="text-xl font-medium mb-4">Subsection</h3>
+  <p className="text-base mb-4">Body text content</p>
+  <span className="text-sm text-soft-400">Helper text</span>
+</div>
+```
+
+### Line Heights
+
+```tsx
+leading-tight  = 1.25   // Headings
+leading-normal = 1.5    // Body text
+leading-relaxed = 1.625 // Long-form content
+```
+
+## Color System and Accessibility
+
+### Color Usage
+
+```tsx
+// ✅ Semantic color usage
+<div className="
+  bg-background text-foreground
+  border-soft-200
+  hover:bg-weak-50
+  focus:ring-2 focus:ring-primary/20
+">
+```
+
+### State Colors
+
+```tsx
+// Success states
+bg-state-success-lighter text-state-success-dark
+
+// Error states
+bg-state-error-lighter text-state-error-dark
+
+// Warning states
+bg-state-warning-lighter text-state-warning-dark
+
+// Information states
+bg-state-information-lighter text-state-information-dark
+```
+
+### Contrast Requirements
+
+- **Normal text**: Minimum 4.5:1 contrast ratio
+- **Large text**: Minimum 3:1 contrast ratio
+- **Interactive elements**: Minimum 3:1 contrast ratio
+
+## Component Architecture
+
+### Component Structure
+
+```tsx
+// ✅ Proper component structure
+interface ComponentProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+export function Component({
+  children,
+  className,
+  variant = 'default',
+  size = 'md',
+  ...props
+}: ComponentProps) {
+  return (
+    <div
+      className={cn(
+        // Base styles
+        'relative flex items-center justify-center',
+        // Variant styles
+        {
+          'bg-primary text-primary-foreground': variant === 'default',
+          'border border-soft-200': variant === 'outline',
+          'bg-transparent': variant === 'ghost',
+        },
+        // Size styles
+        {
+          'h-8 px-3 text-sm': size === 'sm',
+          'h-10 px-4 text-base': size === 'md',
+          'h-12 px-6 text-lg': size === 'lg',
+        },
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+### Layout Components
+
+```tsx
+// ✅ Consistent layout patterns
+export function PageLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-background">
+      <main className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+    </div>
+  );
+}
+
+export function Section({ children, className }: Props) {
+  return <section className={cn('py-8 sm:py-12 lg:py-16', className)}>{children}</section>;
+}
+```
+
+## Interactive Elements
+
+### Button Guidelines
+
+```tsx
+// ✅ Button sizing and spacing
+const buttonVariants = {
+  size: {
+    sm: 'h-8 px-3 text-xs gap-2',
+    md: 'h-10 px-4 text-sm gap-2',
+    lg: 'h-12 px-6 text-base gap-3',
+  }
+}
+
+// ✅ Interactive states
+<Button className="
+  transition-all duration-200
+  hover:scale-105 hover:shadow-md
+  focus:ring-2 focus:ring-primary/20 focus:ring-offset-2
+  active:scale-95
+  disabled:opacity-50 disabled:cursor-not-allowed
+">
+```
+
+### Form Elements
+
+```tsx
+// ✅ Form field structure
+<div className="space-y-2">
+  <Label className="text-sm font-medium">Field Label</Label>
+  <Input
+    className="h-10 px-3 rounded-lg border border-soft-200
+               focus:border-primary focus:ring-2 focus:ring-primary/20"
+  />
+  <p className="text-xs text-soft-400">Helper text</p>
+</div>
+```
+
+### Focus Management
+
+```tsx
+// ✅ Keyboard navigation support
+<div
+  tabIndex={0}
+  className="
+    focus:outline-none
+    focus:ring-2
+    focus:ring-primary/20
+    focus:ring-offset-2
+    rounded-lg
+  "
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleAction();
+    }
+  }}
+>
+```
+
+## Loading and Empty States
+
+### Loading States
+
+```tsx
+// ✅ Loading indicators
+export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  return (
+    <div
+      className={cn('animate-spin rounded-full border-2 border-soft-200 border-t-primary', {
+        'h-4 w-4': size === 'sm',
+        'h-6 w-6': size === 'md',
+        'h-8 w-8': size === 'lg',
+      })}
+    />
+  );
+}
+
+// ✅ Skeleton loading
+<div className="animate-pulse space-y-4">
+  <div className="h-4 bg-soft-200 rounded w-3/4"></div>
+  <div className="h-4 bg-soft-200 rounded w-1/2"></div>
+</div>;
+```
+
+### Empty States
+
+```tsx
+// ✅ Empty state component
+export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="mb-4 rounded-full bg-weak-50 p-4">
+        <Icon className="h-8 w-8 text-soft-400" />
+      </div>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-soft-400 mb-6 max-w-sm">{description}</p>
+      {action}
+    </div>
+  );
+}
+```
+
+## Animation and Transitions
+
+### Animation Principles
+
+```tsx
+// ✅ Smooth transitions
+.transition-all duration-200 ease-in-out
+
+// ✅ Specific property transitions
+.transition-colors duration-200
+.transition-transform duration-300
+.transition-opacity duration-150
+```
+
+### Hover Effects
+
+```tsx
+// ✅ Subtle hover animations
+<div className="
+  transform transition-all duration-200
+  hover:scale-105 hover:shadow-lg
+  hover:-translate-y-1
+">
+```
+
+### Page Transitions
+
+```tsx
+// ✅ Page transition with Framer Motion
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -20 }}
+  transition={{ duration: 0.3, ease: 'easeInOut' }}
+>
+```
+
+## Accessibility Guidelines
+
+### Semantic HTML
+
+```tsx
+// ✅ Proper semantic structure
+<article>
+  <header>
+    <h1>Article Title</h1>
+    <time dateTime="2024-01-01">January 1, 2024</time>
+  </header>
+  <main>
+    <p>Article content...</p>
+  </main>
+  <footer>
+    <nav aria-label="Article actions">
+      <button>Share</button>
+      <button>Save</button>
+    </nav>
+  </footer>
+</article>
+```
+
+### ARIA Attributes
+
+```tsx
+// ✅ ARIA labels and descriptions
+<button
+  aria-label="Close dialog"
+  aria-describedby="dialog-description"
+  onClick={onClose}
+>
+  <X className="h-4 w-4" />
+</button>
+
+<div id="dialog-description" className="sr-only">
+  This will close the current dialog
+</div>
+```
+
+### Keyboard Navigation
+
+```tsx
+// ✅ Keyboard support
+<div
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  }}
+  className="focus:ring-2 focus:ring-primary/20 focus:outline-none"
+>
+```
+
+## Error Handling and Validation
+
+### Form Validation
+
+```tsx
+// ✅ Error state handling
+<div className="space-y-2">
+  <Input
+    className={cn(
+      'h-10 px-3 rounded-lg border',
+      error
+        ? 'border-state-error-base focus:border-state-error-base focus:ring-state-error-base/20'
+        : 'border-soft-200 focus:border-primary focus:ring-primary/20',
+    )}
+    aria-invalid={!!error}
+    aria-describedby={error ? 'error-message' : undefined}
+  />
+  {error && (
+    <p id="error-message" className="text-xs text-state-error-base flex items-center gap-1">
+      <AlertCircle className="h-3 w-3" />
+      {error}
+    </p>
+  )}
+</div>
+```
+
+### Error Boundaries
+
+```tsx
+// ✅ Error boundary component
+export function ErrorBoundary({ children, fallback }: Props) {
+  return (
+    <ErrorBoundaryProvider
+      fallback={
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertTriangle className="h-12 w-12 text-state-error-base mb-4" />
+          <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
+          <p className="text-soft-400 text-center max-w-sm">
+            We're sorry, but something unexpected happened. Please try refreshing the page.
+          </p>
+        </div>
+      }
+    >
+      {children}
+    </ErrorBoundaryProvider>
+  );
+}
+```
+
+## Performance Guidelines
+
+### Image Optimization
+
+```tsx
+// ✅ Optimized images with Next.js
+import Image from 'next/image';
+
+<Image
+  src="/image.jpg"
+  alt="Descriptive alt text"
+  width={400}
+  height={300}
+  className="rounded-lg"
+  loading="lazy"
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,..."
+/>;
+```
+
+### Code Splitting
+
+```tsx
+// ✅ Lazy loading components
+const LazyComponent = dynamic(() => import('./HeavyComponent'), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+});
+```
+
+### Memoization
+
+```tsx
+// ✅ Performance optimization
+const ExpensiveComponent = memo(({ data }: Props) => {
+  const processedData = useMemo(() => expensiveCalculation(data), [data]);
+
+  const handleClick = useCallback(() => {
+    // Handle click
+  }, []);
+
+  return <div>{/* Component content */}</div>;
+});
+```
+
+## Testing Guidelines
+
+### Test Structure
+
+```tsx
+// ✅ Component testing
+describe('Component', () => {
+  it('renders with correct accessibility attributes', () => {
+    render(<Component />);
+    expect(screen.getByRole('button')).toHaveAttribute('aria-label');
+  });
+
+  it('supports keyboard navigation', () => {
+    render(<Component />);
+    const element = screen.getByRole('button');
+    fireEvent.keyDown(element, { key: 'Enter' });
+    expect(mockHandler).toHaveBeenCalled();
+  });
+
+  it('displays loading state correctly', () => {
+    render(<Component loading />);
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+  });
+});
+```
+
+## Documentation Requirements
+
+### Component Documentation
+
+```tsx
+/**
+ * Button component following 8-point grid system
+ *
+ * @param variant - Visual style variant
+ * @param size - Size following 8px increments (sm: 32px, md: 40px, lg: 48px)
+ * @param disabled - Disabled state
+ * @param loading - Loading state with spinner
+ * @param children - Button content
+ *
+ * @example
+ * <Button variant="primary" size="md" onClick={handleClick}>
+ *   Click me
+ * </Button>
+ */
+export function Button({ variant, size, disabled, loading, children }: ButtonProps) {
+  // Implementation
+}
+```
+
+## Enforcement Rules
+
+### Mandatory Checks
+
+1. **8-Point Grid**: All spacing must use 8px increments
+2. **Responsive Design**: Components must work on all screen sizes
+3. **Accessibility**: ARIA attributes and keyboard navigation required
+4. **Performance**: Lazy loading and memoization where appropriate
+5. **Error Handling**: Proper error states and boundaries
+6. **Type Safety**: Full TypeScript coverage with proper interfaces
+
+### Code Review Checklist
+
+- [ ] Follows 8-point grid system
+- [ ] Mobile-first responsive design
+- [ ] Proper semantic HTML
+- [ ] ARIA attributes present
+- [ ] Keyboard navigation support
+- [ ] Loading and error states
+- [ ] Performance optimizations
+- [ ] TypeScript interfaces defined
+- [ ] Test coverage adequate
+- [ ] Documentation complete
+
+## Tools and Utilities
+
+### Required Imports
+
+```tsx
+import { forwardRef } from 'react';
+import { tv, type VariantProps } from 'tailwind-variants';
+
+import { cn } from '@/helpers/shadcn';
+```
+
+### Utility Functions
+
+```tsx
+// ✅ Conditional className helper
+const buttonClasses = cn(
+  'base-classes',
+  {
+    'conditional-class': condition,
+  },
+  className,
+);
+```
