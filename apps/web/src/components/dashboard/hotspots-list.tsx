@@ -32,7 +32,7 @@ export default function HotspotsList({
       case "Caution":
         return "bg-yellow-500";
       default:
-        return "bg-gray-500";
+        return "bg-slate-500";
     }
   };
 
@@ -101,7 +101,7 @@ export default function HotspotsList({
                       <span className="text-xs text-muted-foreground">
                         Duração: {hotspot.duration} min
                       </span>
-                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                      <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
                         {getRiskLabel(hotspot.riskLevel)}
                       </span>
                     </div>

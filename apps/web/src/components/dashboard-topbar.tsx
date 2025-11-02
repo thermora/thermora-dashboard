@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { Calendar, Filter, Plus, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,12 +25,12 @@ export default function DashboardTopbar({
 
   const tabs = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/dashboard/alertas", label: "Alertas" },
-    { href: "/dashboard/dispositivos", label: "Dispositivos" },
+    { href: "/alerts", label: "Alertas" },
+    { href: "/devices", label: "Dispositivos" },
   ];
 
   return (
-    <div className="border-b border-gray-200 bg-white">
+    <div className="border-b border-slate-200 bg-white">
       <div className="w-full px-6 py-4">
         <div className="flex items-center justify-between gap-8">
           {/* Left: Logo and Profile */}
@@ -42,14 +43,14 @@ export default function DashboardTopbar({
             {/* Profile Section */}
             <div className="flex flex-col gap-1 pt-1">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden border border-gray-300 flex items-center justify-center">
-                  <div className="h-6 w-6 rounded-full bg-gray-400"></div>
+                <div className="h-8 w-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300 flex items-center justify-center">
+                  <div className="h-6 w-6 rounded-full bg-slate-400"></div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-900 leading-tight">
+                  <span className="text-sm font-medium text-slate-900 leading-tight">
                     Vinicius Rocha
                   </span>
-                  <span className="text-xs text-gray-600 leading-tight">
+                  <span className="text-xs text-slate-600 leading-tight">
                     Bem vindo de volta ao Thermora 👋
                   </span>
                 </div>
@@ -66,12 +67,13 @@ export default function DashboardTopbar({
               return (
                 <Link key={tab.href} href={tab.href as any}>
                   <Button
-                    variant={isActive ? "default" : "ghost"}
-                    className={
-                      isActive
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 h-auto font-medium"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 h-auto font-medium"
-                    }
+                    variant="ghost"
+                    className={cn(
+                      "text-slate-600 hover:text-slate-900 hover:bg-slate-500/5 px-4 py-2 h-auto font-medium",
+                      {
+                        "bg-slate-500/10 text-slate-900": isActive,
+                      }
+                    )}
                   >
                     {tab.label}
                   </Button>
@@ -87,7 +89,7 @@ export default function DashboardTopbar({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-2 border-gray-300 text-gray-700 hover:bg-gray-50 h-9 px-3"
+                  className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-50 h-9 px-3"
                 >
                   <Calendar className="h-4 w-4" />
                   <span>Últimos 7 dias</span>
@@ -110,7 +112,7 @@ export default function DashboardTopbar({
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 border-gray-300 text-gray-700 hover:bg-gray-50 h-9 px-3"
+              className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-50 h-9 px-3"
             >
               <Filter className="h-4 w-4" />
               <span>Filtrar por</span>
@@ -119,7 +121,7 @@ export default function DashboardTopbar({
             <Button
               variant="default"
               size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white gap-2 h-9 px-4 shadow-sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-9 px-4 shadow-sm"
               onClick={onExportClick}
             >
               <Plus className="h-4 w-4" />

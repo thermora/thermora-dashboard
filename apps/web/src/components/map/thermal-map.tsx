@@ -345,7 +345,7 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
       <div className="relative h-full w-full">
         <div ref={mapContainer} className="h-full w-full" />
         {!mapLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
             <div className="text-center">
               <div className="mb-2 text-lg font-medium">Carregando mapa...</div>
               <div className="text-sm text-muted-foreground">

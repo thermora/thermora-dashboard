@@ -121,7 +121,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right: Panel - Approximately 1/3 width */}
-        <div className="flex w-1/3 flex-col gap-4 overflow-y-auto bg-white p-6 border-l border-gray-200">
+        <div className="flex w-1/3 flex-col gap-4 overflow-y-auto bg-white p-6 border-l border-slate-200">
           {stats === undefined ? (
             <div className="text-center text-muted-foreground py-8">
               Carregando estatísticas...
