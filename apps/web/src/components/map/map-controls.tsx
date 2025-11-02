@@ -6,9 +6,6 @@ import { Label } from "@/components/ui/label";
 import {
   RiDownloadLine,
   RiStackLine,
-  RiZoomInLine,
-  RiZoomOutLine,
-  RiCompassLine,
 } from "react-icons/ri";
 
 interface MapControlsProps {
@@ -20,9 +17,6 @@ interface MapControlsProps {
   onToggleNeighborhoods?: (enabled: boolean) => void;
   onExportPNG?: () => void;
   onExportPDF?: () => void;
-  onZoomIn?: () => void;
-  onZoomOut?: () => void;
-  onResetView?: () => void;
 }
 
 export default function MapControls({
@@ -34,41 +28,10 @@ export default function MapControls({
   onToggleNeighborhoods,
   onExportPNG,
   onExportPDF,
-  onZoomIn,
-  onZoomOut,
-  onResetView,
 }: MapControlsProps) {
 
   return (
     <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
-      {/* Zoom Controls */}
-      <div className="flex flex-col gap-1 rounded-lg border bg-white p-2 shadow-md">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onZoomIn}
-          className="h-8 w-8"
-        >
-          <RiZoomInLine className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onZoomOut}
-          className="h-8 w-8"
-        >
-          <RiZoomOutLine className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onResetView}
-          className="h-8 w-8"
-        >
-          <RiCompassLine className="h-4 w-4" />
-        </Button>
-      </div>
-
       {/* Layer Controls */}
       <div className="rounded-lg border bg-white p-4 shadow-md">
         <div className="flex items-center gap-2 mb-3">
