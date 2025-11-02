@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle } from "lucide-react";
+import { RiAlertLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 
 interface Hotspot {
@@ -60,7 +60,7 @@ export default function HotspotsList({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-yellow-500" />
+          <RiAlertLine className="h-5 w-5 text-yellow-500" />
           Hotspots Críticos
           {hotspots.length > 0 && (
             <span className="text-sm font-normal text-muted-foreground ml-auto">
