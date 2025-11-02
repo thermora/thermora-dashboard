@@ -13,13 +13,17 @@ import { Protocol } from "pmtiles";
 
 let protocolRegistered = false;
 
-// Protomaps style using PMTiles
+// Protomaps style using vector tiles API (simpler and more reliable)
 const PROTOMAPS_STYLE = {
   version: 8,
   sources: {
     protomaps: {
       type: "vector",
-      url: "pmtiles://https://build.protomaps.com/20241114.pmtiles",
+      tiles: [
+        "https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=demo"
+      ],
+      minzoom: 0,
+      maxzoom: 14,
       attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>'
     }
   },
@@ -28,7 +32,7 @@ const PROTOMAPS_STYLE = {
       id: "background",
       type: "background",
       paint: {
-        "background-color": "#e0e0e0"
+        "background-color": "#f0f0f0"
       }
     },
     {
@@ -41,12 +45,23 @@ const PROTOMAPS_STYLE = {
       }
     },
     {
+      id: "natural",
+      type: "fill",
+      source: "protomaps",
+      "source-layer": "natural",
+      filter: ["==", ["get", "pmap:kind"], "park"],
+      paint: {
+        "fill-color": "#cde5b3"
+      }
+    },
+    {
       id: "landuse",
       type: "fill",
       source: "protomaps",
       "source-layer": "landuse",
       paint: {
-        "fill-color": "#e8e8e8"
+        "fill-color": "#e8e8e8",
+        "fill-opacity": 0.6
       }
     },
     {
@@ -65,24 +80,26 @@ const PROTOMAPS_STYLE = {
       "source-layer": "buildings",
       minzoom: 14,
       paint: {
-        "fill-color": "#d1d1d1",
+        "fill-color": "#cccccc",
         "fill-opacity": 0.5
       }
     },
     {
-      id: "roads",
+      id: "roads-minor",
       type: "line",
       source: "protomaps",
       "source-layer": "roads",
+      minzoom: 12,
+      filter: ["==", ["get", "pmap:kind"], "minor_road"],
       paint: {
         "line-color": "#ffffff",
         "line-width": [
           "interpolate",
           ["exponential", 1.6],
           ["zoom"],
-          10, 0.5,
-          14, 2,
-          18, 8
+          12, 0.5,
+          14, 1,
+          18, 4
         ]
       }
     },
@@ -91,16 +108,34 @@ const PROTOMAPS_STYLE = {
       type: "line",
       source: "protomaps",
       "source-layer": "roads",
-      filter: ["in", ["get", "pmap:kind"], ["literal", ["highway", "major_road"]]],
+      filter: ["==", ["get", "pmap:kind"], "major_road"],
       paint: {
-        "line-color": "#f5f5f5",
+        "line-color": "#ffffff",
         "line-width": [
           "interpolate",
           ["exponential", 1.6],
           ["zoom"],
           8, 1,
-          14, 4,
-          18, 12
+          14, 2,
+          18, 8
+        ]
+      }
+    },
+    {
+      id: "roads-highway",
+      type: "line",
+      source: "protomaps",
+      "source-layer": "roads",
+      filter: ["==", ["get", "pmap:kind"], "highway"],
+      paint: {
+        "line-color": "#ffd700",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.6],
+          ["zoom"],
+          6, 1,
+          14, 3,
+          18, 10
         ]
       }
     },
@@ -111,12 +146,12 @@ const PROTOMAPS_STYLE = {
       "source-layer": "boundaries",
       paint: {
         "line-color": "#adadad",
-        "line-width": 0.5,
+        "line-width": 1,
         "line-dasharray": [3, 2]
       }
     },
     {
-      id: "places",
+      id: "place-labels",
       type: "symbol",
       source: "protomaps",
       "source-layer": "places",
@@ -124,19 +159,13 @@ const PROTOMAPS_STYLE = {
       layout: {
         "text-field": ["get", "name"],
         "text-font": ["Noto Sans Regular"],
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          2, 10,
-          6, 14,
-          10, 18
-        ]
+        "text-size": 14,
+        "text-anchor": "center"
       },
       paint: {
-        "text-color": "#5c5c5c",
+        "text-color": "#333333",
         "text-halo-color": "#ffffff",
-        "text-halo-width": 1.5
+        "text-halo-width": 2
       }
     }
   ],
@@ -183,22 +212,20 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
     useEffect(() => {
       if (!mapContainer.current || map.current) return;
 
-      try {
-        // Register PMTiles protocol (only once)
-        if (!protocolRegistered) {
-          const protocol = new Protocol();
-          maplibregl.addProtocol("pmtiles", protocol.tile);
-          protocolRegistered = true;
-          console.log("PMTiles protocol registered");
-        }
+      console.log("🗺️ Initializing map...");
 
-        // Initialize map with Protomaps style
+      try {
+        // Initialize map with Protomaps style (using vector tiles API, no PMTiles needed)
         map.current = new maplibregl.Map({
           container: mapContainer.current,
           style: PROTOMAPS_STYLE as any,
           center: [-46.6333, -23.5505], // São Paulo
           zoom: 12,
+          attributionControl: true,
         });
+
+        // Add navigation controls
+        map.current.addControl(new maplibregl.NavigationControl(), "top-right");
 
         map.current.on("load", () => {
           console.log("✅ Protomaps loaded successfully!");
@@ -206,22 +233,31 @@ const ThermalMap = forwardRef<ThermalMapRef, ThermalMapProps>(
         });
 
         map.current.on("error", (e) => {
-          console.error("❌ Map error:", e);
+          console.error("❌ Map error:", e.error);
         });
 
-        map.current.on("sourcedata", (e) => {
-          if (e.isSourceLoaded) {
+        map.current.on("data", (e) => {
+          if (e.dataType === "source" && e.isSourceLoaded) {
             console.log("📍 Source loaded:", e.sourceId);
           }
         });
 
-      } catch (error) {
-        console.error("Failed to initialize map:", error);
-      }
+        // Set timeout to detect loading issues
+        const timeout = setTimeout(() => {
+          if (!mapLoaded) {
+            console.warn("⚠️ Map is taking too long to load. Check network tab for errors.");
+          }
+        }, 10000);
 
-      return () => {
-        map.current?.remove();
-      };
+        return () => {
+          clearTimeout(timeout);
+          map.current?.remove();
+        };
+
+      } catch (error) {
+        console.error("💥 Failed to initialize map:", error);
+        setMapLoaded(true); // Set to true to hide loading message
+      }
     }, []);
 
     // Add heatmap layer when map is loaded and readings are available

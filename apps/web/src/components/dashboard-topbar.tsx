@@ -33,7 +33,6 @@ export default function DashboardTopbar({
 
   const tabs = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/alerts", label: "Alertas" },
     { href: "/devices", label: "Dispositivos" },
   ];
 
